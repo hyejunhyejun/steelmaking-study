@@ -19,3 +19,9 @@ button.round.wrong { background:#fff7f2; }
 .plabel { font-weight:600; margin-top:.5rem; }
 .answers { margin:.3rem 0 .3rem 1.1rem; } .answers li { margin:.15rem 0; }
 sub, sup { font-size:.75em; }
+.progress { color:#777; margin:.3rem 0 .6rem; }
+textarea.ans { width:100%; font-size:16px; padding:.5rem; border:1px solid #cfcfcf; border-radius:8px; }
+.kw { font-size:.9rem; margin:.3rem 0 .8rem; color:#555; }
+.kw .hit { color:var(--accent); } .kw .miss { color:#c33; }
+.controls button { padding:.6rem 1rem; border:1px solid #cfcfcf; border-radius:8px; background:#fff; cursor:pointer; margin-right:.4rem; }
+.model { background:#f6fbf8; border:1px solid #d8ece0; border-radius:8px; padding:.6rem; margin:.6rem 0; }

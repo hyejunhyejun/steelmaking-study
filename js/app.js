@@ -27,18 +27,18 @@ function renderRoundSelect(data) {
 }
 
 function renderModeSelect(round) {
+  const modes = round.type === "wrong"
+    ? [["practice", "연습"], ["test", "테스트"]]
+    : [["practice", "연습"], ["test", "테스트"], ["exam", "시험"]];
   app.innerHTML = `
     <button class="back">← 회차</button>
     <h2>${round.label}</h2>
-    <div class="mode-grid">
-      <button data-mode="practice">연습</button>
-      <button data-mode="test">테스트</button>
-      <button data-mode="exam">시험</button>
-    </div>`;
+    <div class="mode-grid">${modes.map(([m, t]) => `<button data-mode="${m}">${t}</button>`).join("")}</div>`;
   app.querySelector(".back").addEventListener("click", home);
-  app.querySelector('[data-mode="practice"]').addEventListener("click", () => startPractice(round));
-  app.querySelector('[data-mode="test"]').addEventListener("click", () => startTest(round));
-  app.querySelector('[data-mode="exam"]').addEventListener("click", () => startExam(round));
+  const bind = (m, fn) => { const b = app.querySelector(`[data-mode="${m}"]`); if (b) b.addEventListener("click", fn); };
+  bind("practice", () => startPractice(round));
+  bind("test", () => startTest(round));
+  bind("exam", () => startExam(round));
 }
 
 function startPractice(round) {

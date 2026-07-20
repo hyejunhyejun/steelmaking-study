@@ -27,3 +27,10 @@ textarea.ans { width:100%; font-size:16px; padding:.5rem; border:1px solid #cfcf
 .model { background:#f6fbf8; border:1px solid #d8ece0; border-radius:8px; padding:.6rem; margin:.6rem 0; }
 .submit { padding:.8rem 1.2rem; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; margin:.8rem 0; }
 .rline { border-top:1px solid #eee; padding:.5rem 0; }
+
+@media (max-width: 640px) {
+  main { padding:.7rem; }
+  .round-grid { grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); }
+  h1 { font-size:1.05rem; }
+}
+img.qimg { display:block; }

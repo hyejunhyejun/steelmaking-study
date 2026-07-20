@@ -13,12 +13,10 @@
 - JS 테스트: `node --test`
 
 ## 배포 (GitHub Pages)
-1. GitHub에서 새 **공개** 저장소 생성(예: `jeseon-study`).
-2. 이 폴더에서 원격 연결 후 push:
+저장소: https://github.com/hyejunhyejun/steelmaking-study (Public)
+1. 원격 연결(이미 설정됨) 후 push:
    ```
-   git remote add origin https://github.com/<사용자>/jeseon-study.git
-   git branch -M main
    git push -u origin main
    ```
-3. 저장소 **Settings → Pages → Source: `main` / `root`** 저장.
-4. 수 분 후 `https://<사용자>.github.io/jeseon-study/` 접속.
+2. 저장소 **Settings → Pages → Source: `main` / `root`** 저장.
+3. 수 분 후 https://hyejunhyejun.github.io/steelmaking-study/ 접속.

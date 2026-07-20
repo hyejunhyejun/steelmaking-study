@@ -8,3 +8,14 @@ main { padding:1rem; max-width:900px; margin:0 auto; }
 button.round { padding:.9rem; border:1px solid #cfcfcf; border-radius:10px; background:#fff; cursor:pointer; font-size:1rem; }
 button.round:hover { border-color:var(--accent); }
 button.round.wrong { background:#fff7f2; }
+.mode-grid { display:flex; gap:.6rem; flex-wrap:wrap; }
+.mode-grid button, .back { padding:.7rem 1.1rem; border:1px solid #cfcfcf; border-radius:10px; background:#fff; cursor:pointer; font-size:1rem; }
+.back { margin-bottom:.8rem; }
+.qcard { border:1px solid #e2e2e2; border-radius:12px; padding:1rem; margin:.8rem 0; background:#fff; }
+.qhead { display:flex; gap:.4rem; align-items:baseline; flex-wrap:wrap; }
+.qnum { font-weight:700; } .qtext { flex:1; } .stars { color:#e6a100; }
+.src { color:#a86; font-size:.85em; }
+.qimg { max-width:100%; height:auto; margin:.6rem 0; border:1px solid #eee; }
+.plabel { font-weight:600; margin-top:.5rem; }
+.answers { margin:.3rem 0 .3rem 1.1rem; } .answers li { margin:.15rem 0; }
+sub, sup { font-size:.75em; }

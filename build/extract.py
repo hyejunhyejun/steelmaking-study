@@ -1,7 +1,10 @@
-import os, json, datetime
+import os, io, json, datetime
 import openpyxl
+from PIL import Image
 from parse import parse_rows, MAIN_RE, SUB_RE
 from derive import derive_keywords, compute_groups, normalize
+
+MAX_IMG_WIDTH = 1000  # 큰 스캔 이미지를 모바일 친화적 크기로 축소
 
 ROUND_SHEETS = ["21-1", "21-2", "22-1", "22-2", "23-1", "23-2",
                 "24-1", "24-2", "25-1", "25-2"]
@@ -36,12 +39,23 @@ def _extract_images(ws, sheet_id, out_dir, starts):
         except Exception:
             continue
         owner = max([s for s in starts if s <= anchor_row], default=None)
-        ext = (getattr(img, "format", None) or "png").lower()
-        fname = f"{sheet_id}_{i}.{ext}"
-        with open(os.path.join(out_dir, fname), "wb") as f:
-            f.write(img._data())
+        fname = f"{sheet_id}_{i}.jpg"
+        _save_optimized(img._data(), os.path.join(out_dir, fname))
         mapping.setdefault(owner, []).append(f"images/{fname}")
     return mapping
+
+
+def _save_optimized(raw_bytes, path):
+    """스캔 이미지를 최대 폭 이하로 축소하고 JPEG로 재저장(용량 절감)."""
+    try:
+        im = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
+        if im.width > MAX_IMG_WIDTH:
+            h = round(im.height * MAX_IMG_WIDTH / im.width)
+            im = im.resize((MAX_IMG_WIDTH, h), Image.LANCZOS)
+        im.save(path, "JPEG", quality=82, optimize=True)
+    except Exception:
+        with open(os.path.splitext(path)[0] + ".png", "wb") as f:
+            f.write(raw_bytes)
 
 
 def build_workbook(path):

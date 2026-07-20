@@ -25,3 +25,5 @@ textarea.ans { width:100%; font-size:16px; padding:.5rem; border:1px solid #cfcf
 .kw .hit { color:var(--accent); } .kw .miss { color:#c33; }
 .controls button { padding:.6rem 1rem; border:1px solid #cfcfcf; border-radius:8px; background:#fff; cursor:pointer; margin-right:.4rem; }
 .model { background:#f6fbf8; border:1px solid #d8ece0; border-radius:8px; padding:.6rem; margin:.6rem 0; }
+.submit { padding:.8rem 1.2rem; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; margin:.8rem 0; }
+.rline { border-top:1px solid #eee; padding:.5rem 0; }

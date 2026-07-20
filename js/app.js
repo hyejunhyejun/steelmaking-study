@@ -38,7 +38,7 @@ function renderModeSelect(round) {
   app.querySelector(".back").addEventListener("click", home);
   app.querySelector('[data-mode="practice"]').addEventListener("click", () => startPractice(round));
   app.querySelector('[data-mode="test"]').addEventListener("click", () => startTest(round));
-  // exam은 이후 태스크에서 연결
+  app.querySelector('[data-mode="exam"]').addEventListener("click", () => startExam(round));
 }
 
 function startPractice(round) {
@@ -108,6 +108,43 @@ function startTest(round) {
   }
 
   renderOne();
+}
+
+function startExam(round) {
+  const forms = round.questions.map((q, qi) => {
+    const parts = q.parts.map((p, pi) => {
+      const label = p.label ? `<div class="plabel">${renderFormula(p.label)}</div>` : "";
+      return `${label}<textarea class="ans" data-qi="${qi}" data-pi="${pi}" rows="2"></textarea>`;
+    }).join("");
+    return `<article class="qcard"><div class="qhead"><span class="qnum">${q.num}.</span>
+      <span class="qtext">${renderFormula(q.text)}</span></div>
+      ${(q.images || []).map((s) => `<img class="qimg" src="data/${s}" alt="그림" loading="lazy" decoding="async">`).join("")}
+      ${parts}</article>`;
+  }).join("");
+  app.innerHTML = `<button class="back">← 모드</button><h2>${round.label} · 시험</h2>
+    ${forms}<button class="submit">제출하고 채점</button><div id="result"></div>`;
+  app.querySelector(".back").addEventListener("click", () => renderModeSelect(round));
+  app.querySelector(".submit").addEventListener("click", () => grade(round));
+}
+
+function grade(round) {
+  let totalKw = 0, hitKw = 0;
+  const lines = round.questions.map((q, qi) => {
+    let qHit = 0, qTot = 0;
+    q.parts.forEach((p, pi) => {
+      const ta = app.querySelector(`textarea[data-qi="${qi}"][data-pi="${pi}"]`);
+      const res = matchKeywords(ta ? ta.value : "", p.keywords || []);
+      qTot += res.length; qHit += res.filter((r) => r.hit).length;
+    });
+    totalKw += qTot; hitKw += qHit;
+    const model = q.parts.map((p) => `${p.label ? renderFormula(p.label) + ": " : ""}${p.answers.map(renderFormula).join(", ")}`).join(" / ");
+    return `<div class="rline"><b>${q.num}.</b> 키워드 ${qHit}/${qTot}
+      <div class="model">${model}</div></div>`;
+  }).join("");
+  const pct = totalKw ? Math.round((hitKw / totalKw) * 100) : 0;
+  const result = app.querySelector("#result");
+  result.innerHTML = `<h3>채점 결과: 키워드 ${hitKw}/${totalKw} (${pct}%)</h3>${lines}`;
+  result.scrollIntoView({ behavior: "smooth" });
 }
 
 loadData().then((d) => { DATA = d; home(); })

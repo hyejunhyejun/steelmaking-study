@@ -6,6 +6,16 @@ from derive import derive_keywords, compute_groups, normalize
 
 MAX_IMG_WIDTH = 1000  # 큰 스캔 이미지를 모바일 친화적 크기로 축소
 
+# 엑셀에 회전된 채 삽입된 그림을 바로 세우는 맵. 키=f"{sheet}_{index}", 값=CCW 각도.
+# (전수 확인 결과: 부두아 곡선·슬래그 삼원계·소결 공정도는 +90, 풍구 단면은 -90)
+ROTATE = {
+    "21-1_1": 90, "21-2_1": 90, "22-1_1": 90, "23-1_0": 90,
+    "24-1_1": 90, "24-2_0": 90, "25-1_2": 90, "25-2_0": 90,  # 부두아(8장 동일)
+    "21-1_3": 90, "24-2_1": 90,                               # 슬래그 삼원계
+    "21-1_4": 90,                                             # 소결 공정도
+    "21-2_0": -90,                                            # 풍구 단면
+}
+
 ROUND_SHEETS = ["21-1", "21-2", "22-1", "22-2", "23-1", "23-2",
                 "24-1", "24-2", "25-1", "25-2"]
 WRONG_SHEET = "틀린문제"
@@ -39,16 +49,19 @@ def _extract_images(ws, sheet_id, out_dir, starts):
         except Exception:
             continue
         owner = max([s for s in starts if s <= anchor_row], default=None)
-        fname = f"{sheet_id}_{i}.jpg"
-        _save_optimized(img._data(), os.path.join(out_dir, fname))
+        key = f"{sheet_id}_{i}"
+        fname = key + ".jpg"
+        _save_optimized(img._data(), os.path.join(out_dir, fname), ROTATE.get(key, 0))
         mapping.setdefault(owner, []).append(f"images/{fname}")
     return mapping
 
 
-def _save_optimized(raw_bytes, path):
-    """스캔 이미지를 최대 폭 이하로 축소하고 JPEG로 재저장(용량 절감)."""
+def _save_optimized(raw_bytes, path, rotate=0):
+    """스캔 이미지를 (필요 시 회전 후) 최대 폭 이하로 축소하고 JPEG로 재저장."""
     try:
         im = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
+        if rotate:
+            im = im.rotate(rotate, expand=True)
         if im.width > MAX_IMG_WIDTH:
             h = round(im.height * MAX_IMG_WIDTH / im.width)
             im = im.resize((MAX_IMG_WIDTH, h), Image.LANCZOS)

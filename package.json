@@ -1,0 +1,6 @@
+{
+  "name": "jeseon-study",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test" }
+}

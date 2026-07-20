@@ -1,0 +1,6 @@
+# 원본 대용량 자료는 저장소에 올리지 않음(배포 공개 대비)
+원본자료/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store

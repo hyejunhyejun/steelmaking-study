@@ -24,6 +24,16 @@ export function imageBlock(q) {
   return "";
 }
 
+// 표로 출제되는 문제는 HTML 표로 렌더(그림 대신)
+export function tableBlock(q) {
+  if (!q.table) return "";
+  const { headers, rows, note } = q.table;
+  return `<div class="table-wrap"><table class="qtable">
+      <thead><tr>${headers.map((h) => `<th>${renderFormula(h)}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${renderFormula(c)}</td>`).join("")}</tr>`).join("")}</tbody>
+    </table>${note ? `<p class="tnote">${renderFormula(note)}</p>` : ""}</div>`;
+}
+
 export function renderQuestionCard(q, { showAnswers }) {
   const el = document.createElement("article");
   el.className = "qcard";
@@ -38,6 +48,6 @@ export function renderQuestionCard(q, { showAnswers }) {
     <div class="qhead"><span class="qnum">${q.num}.</span>
       <span class="qtext">${renderFormula(q.text)}</span>
       ${ownerBadge(q)}${examBadge(q)}<span class="stars">${starText(q.stars || 1)}</span></div>
-    ${imageBlock(q)}${parts}`;
+    ${imageBlock(q)}${showAnswers ? tableBlock(q) : ""}${parts}`;
   return el;
 }

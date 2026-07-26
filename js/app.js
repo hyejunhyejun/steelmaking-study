@@ -1,5 +1,5 @@
 import { loadData, getTopic, findByQid } from "./data.js";
-import { renderQuestionCard, imageBlock } from "./render.js";
+import { renderQuestionCard, imageBlock, tableBlock } from "./render.js";
 import { matchKeywords } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
@@ -138,7 +138,8 @@ function startTest(collection, backFn) {
     reveal.hidden = false;
     reveal.querySelector(".model").innerHTML =
       "<b>모범답안</b>" + q.parts.map((p) =>
-        `<div>${p.label ? renderFormula(p.label) + ": " : ""}${p.answers.map(renderFormula).join(", ")}</div>`).join("");
+        `<div>${p.label ? renderFormula(p.label) + ": " : ""}${p.answers.map(renderFormula).join(", ")}</div>`).join("")
+      + tableBlock(q);
   }
 
   function next(ok) {
@@ -202,7 +203,7 @@ function grade(collection) {
     const model = q.parts.map((p) =>
       `${p.label ? renderFormula(p.label) + ": " : ""}${p.answers.map(renderFormula).join(", ")}`).join(" / ");
     return `<div class="rline"><b>${q.num}.</b> 키워드 ${qHit}/${qTot}
-      <div class="model">${model}</div>
+      <div class="model">${model}${tableBlock(q)}</div>
       <div class="mark-row" data-qid="${q.qid}">
         <button class="mini o">O 맞음</button><button class="mini x">X 틀림</button>
         <span class="mark-state"></span>

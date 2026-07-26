@@ -41,11 +41,27 @@ def test_topic_image_from_map():
 def test_image_needed_flag_when_placeholder_unfilled():
     """그림자리는 있으나 채울 그림이 없으면 imageNeeded=True, 힌트는 남는다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
-    t03 = next(t for t in d["topics"] if t["id"] == "t03")
-    q = next(q for q in t03["questions"] if q["qid"] == "t03-24")
+    t12 = next(t for t in d["topics"] if t["id"] == "t12")
+    q = next(q for q in t12["questions"] if q["qid"] == "t12-59")
     assert q["images"] == []
     assert q["imageNeeded"] is True
-    assert "석영" in q["imageHint"]
+    assert "스키머" in q["imageHint"]
+
+
+def test_svg_diagrams_are_attached():
+    """직접 제작한 SVG 도표가 해당 문제에 연결된다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    expected = {
+        "t01-8": "diagrams/tuyere-zones.svg",
+        "t01-9": "diagrams/flue-temp.svg",
+        "t03-24": "diagrams/quartz-transition.svg",
+        "t05-33": "diagrams/boudouard-pressure.svg",
+        "t47-157": "diagrams/grain-distribution.svg",
+    }
+    for qid, path in expected.items():
+        assert by_qid[qid]["images"] == [path], qid
+        assert by_qid[qid]["imageNeeded"] is False, qid
 
 
 def test_every_question_has_at_least_one_part():
@@ -85,3 +101,25 @@ def test_no_leftover_internal_field():
     for coll in d["rounds"] + d["topics"]:
         for q in coll["questions"]:
             assert "imagePlaceholders" not in q
+
+
+def test_table_questions_get_table_and_no_pending_image():
+    """표 문제는 table 데이터가 붙고 '그림 준비중'으로 표시되지 않는다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    t06 = next(t for t in d["topics"] if t["id"] == "t06")
+    q = next(q for q in t06["questions"] if q["qid"] == "t06-35")
+    assert q["table"]["headers"] == ["부위", "요구특성", "사용재질"]
+    assert len(q["table"]["rows"]) == 3
+    assert q["imageNeeded"] is False
+
+    t26 = next(t for t in d["topics"] if t["id"] == "t26")
+    q2 = next(q for q in t26["questions"] if q["qid"] == "t26-103")
+    assert "비중" in q2["table"]["headers"]
+    assert q2["table"]["rows"][0][:2] == ["Fe₂O₃", "적철광"]
+    assert q2["imageNeeded"] is False
+
+
+def test_non_table_questions_have_no_table_key():
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    q = next(q for r in d["rounds"] for q in r["questions"] if q["qid"] == "21-1-1")
+    assert "table" not in q

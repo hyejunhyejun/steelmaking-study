@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" width="520" height="300" font-family="system-ui, 'Malgun Gothic', sans-serif">
+  <rect width="520" height="300" fill="#ffffff"/>
+  <!-- 노벽 -->
+  <rect x="0" y="0" width="46" height="300" fill="#e9e4dc" stroke="#9a9a9a"/>
+  <text x="10" y="150" font-size="13" fill="#666" transform="rotate(-90 16,150)">노벽</text>
+  <!-- 풍구 -->
+  <polygon points="46,128 108,136 108,164 46,172" fill="#cfd8e3" stroke="#5a6b80" stroke-width="1.5"/>
+  <text x="52" y="120" font-size="12" fill="#41556e">풍구(Tuyere)</text>
+  <!-- 송풍 화살표 -->
+  <line x1="14" y1="150" x2="104" y2="150" stroke="#41556e" stroke-width="2"/>
+  <polygon points="104,150 94,145 94,155" fill="#41556e"/>
+  <!-- 레이스웨이 영역: A(연소대) → B → C -->
+  <ellipse cx="290" cy="150" rx="200" ry="112" fill="#f2f6fa" stroke="#8fa4bb" stroke-dasharray="5 4"/>
+  <ellipse cx="235" cy="150" rx="132" ry="86" fill="#e2ecf6" stroke="#7d95af"/>
+  <ellipse cx="172" cy="150" rx="66" ry="52" fill="#c9dcee" stroke="#5a7794" stroke-width="1.5"/>
+  <!-- 라벨 -->
+  <text x="163" y="156" font-size="20" font-weight="700" fill="#22405e">A</text>
+  <text x="318" y="156" font-size="20" font-weight="700" fill="#22405e">B</text>
+  <text x="440" y="156" font-size="20" font-weight="700" fill="#22405e">C</text>
+  <!-- 지시선 -->
+  <line x1="172" y1="196" x2="172" y2="238" stroke="#7a7a7a"/>
+  <text x="120" y="254" font-size="12" fill="#555">연소대(레이스웨이)</text>
+  <line x1="330" y1="182" x2="352" y2="214" stroke="#7a7a7a"/>
+  <text x="330" y="230" font-size="12" fill="#555">환원 진행</text>
+  <line x1="452" y1="176" x2="470" y2="206" stroke="#7a7a7a"/>
+  <text x="404" y="222" font-size="12" fill="#555">O₂ 소진 후</text>
+  <text x="112" y="34" font-size="13" fill="#333">풍구 앞 가스조성 변화 (A → B → C)</text>
+  <text x="112" y="286" font-size="11" fill="#999">※ 개념도 — 영역 구분 학습용</text>
+</svg>

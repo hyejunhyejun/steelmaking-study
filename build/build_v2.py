@@ -6,6 +6,7 @@ import docx
 from parse_docx import parse_rounds_doc, parse_photos_doc
 from images import extract_images
 from imagemap import TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES
+from tables import TABLES
 from derive import derive_keywords, normalize
 
 
@@ -14,10 +15,14 @@ def _lines(path):
 
 
 def _finish(q, qid, images):
-    """qid·그림·키워드를 채우고 내부 필드를 정리한다."""
+    """qid·그림·표·키워드를 채우고 내부 필드를 정리한다."""
     q["qid"] = qid
     q["images"] = images
-    q["imageNeeded"] = bool(q.get("imagePlaceholders", 0)) and not images
+    table = TABLES.get(qid)
+    if table:
+        q["table"] = table
+    # 그림자리가 있어도 그림이나 표로 채워졌으면 '준비중'이 아니다
+    q["imageNeeded"] = bool(q.get("imagePlaceholders", 0)) and not images and not table
     q["imageHint"] = q.get("imageHint", "")
     q.pop("imagePlaceholders", None)
     # 작도 문제(답이 그림 자체)는 답 단락이 없다 → UI 일관성을 위해 빈 파트 보장

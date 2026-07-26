@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 300" width="660" height="300" font-family="system-ui, 'Malgun Gothic', sans-serif">
+  <rect width="660" height="300" fill="#ffffff"/>
+  <text x="228" y="26" font-size="13" fill="#333">장입물 입도분포 — 노벽 거리에 따른 형상</text>
+
+  <!-- (a) 노벽이 없을 때 -->
+  <g transform="translate(20,44)">
+    <rect x="0" y="0" width="190" height="180" fill="#fcfcfc" stroke="#ccc"/>
+    <!-- 퇴적 사면: 중심(좌)에서 가장자리(우)로 -->
+    <polygon points="10,170 100,40 190,170" fill="#f2f2f2" stroke="#999"/>
+    <!-- 입도 층 경계 -->
+    <line x1="100" y1="40" x2="52" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="100" y1="40" x2="148" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="100" y1="40" x2="26" y2="170" stroke="#bbb" stroke-dasharray="3 3"/>
+    <line x1="100" y1="40" x2="174" y2="170" stroke="#bbb" stroke-dasharray="3 3"/>
+    <g font-size="12" fill="#22405e" font-weight="700">
+      <text x="94" y="80">1</text><text x="70" y="132">2</text>
+      <text x="120" y="132">3</text><text x="34" y="164">4</text>
+    </g>
+    <text x="52" y="196" font-size="12" fill="#555">(a) 노벽이 없을 때</text>
+  </g>
+
+  <!-- (b) 노벽이 멀 때 -->
+  <g transform="translate(232,44)">
+    <rect x="0" y="0" width="190" height="180" fill="#fcfcfc" stroke="#ccc"/>
+    <rect x="176" y="0" width="14" height="180" fill="#e9e4dc" stroke="#9a9a9a"/>
+    <polygon points="10,170 92,40 176,170" fill="#f2f2f2" stroke="#999"/>
+    <line x1="92" y1="40" x2="46" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="92" y1="40" x2="138" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="92" y1="40" x2="164" y2="170" stroke="#bbb" stroke-dasharray="3 3"/>
+    <g font-size="12" fill="#22405e" font-weight="700">
+      <text x="86" y="80">1</text><text x="62" y="132">2</text>
+      <text x="112" y="132">3</text><text x="150" y="164">4</text>
+    </g>
+    <text x="60" y="196" font-size="12" fill="#555">(b) 노벽이 멀 때</text>
+  </g>
+
+  <!-- (c) 노벽이 가까울 때 -->
+  <g transform="translate(444,44)">
+    <rect x="0" y="0" width="190" height="180" fill="#fcfcfc" stroke="#ccc"/>
+    <rect x="130" y="0" width="14" height="180" fill="#e9e4dc" stroke="#9a9a9a"/>
+    <polygon points="10,170 74,40 130,170" fill="#f2f2f2" stroke="#999"/>
+    <line x1="74" y1="40" x2="40" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="74" y1="40" x2="104" y2="170" stroke="#7a7a7a" stroke-dasharray="4 3"/>
+    <line x1="74" y1="40" x2="124" y2="170" stroke="#bbb" stroke-dasharray="3 3"/>
+    <g font-size="12" fill="#22405e" font-weight="700">
+      <text x="68" y="80">1</text><text x="50" y="132">2</text>
+      <text x="90" y="132">3</text><text x="114" y="164">4</text>
+    </g>
+    <text x="42" y="196" font-size="12" fill="#555">(c) 노벽이 가까울 때</text>
+  </g>
+
+  <text x="20" y="268" font-size="12" fill="#444">1 대괴 · 2 중괴 · 3 조립 · 4 세립(분) — 대괴는 중심으로 굴러가고 세립은 낙하지점·노벽 쪽에 남는다</text>
+  <text x="20" y="288" font-size="11" fill="#999">※ 개념도 — 노벽이 가까울수록 낙하 사면이 좁아져 세립이 노벽 쪽에 집중</text>
+</svg>

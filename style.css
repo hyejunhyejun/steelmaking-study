@@ -36,6 +36,11 @@ button.topic small { display:block; color:#888; margin-top:.2rem; }
 .exam-badge { background:#eef6ff; color:#26619c; border:1px solid #cfe3f7; border-radius:999px; padding:.05rem .45rem; font-size:.78rem; }
 .img-pending { border:1px dashed #c9c9c9; border-radius:10px; color:#999; background:#fbfbfb; padding:1.4rem .8rem; text-align:center; margin:.6rem 0; font-size:.9rem; }
 .img-pending small { color:#aaa; }
+.table-wrap { overflow-x:auto; margin:.6rem 0; }
+table.qtable { border-collapse:collapse; width:100%; font-size:.9rem; background:#fff; }
+table.qtable th, table.qtable td { border:1px solid #d9d9d9; padding:.4rem .55rem; text-align:left; vertical-align:top; }
+table.qtable th { background:#f3f6f9; font-weight:600; white-space:nowrap; }
+.tnote { color:#777; font-size:.85rem; margin:.35rem 0 0; }
 button.danger { padding:.6rem 1rem; border:1px solid #e2b6b6; border-radius:8px; background:#fff5f5; color:#b13; cursor:pointer; margin:.4rem 0 .8rem; }
 .result-line { font-size:1.05rem; }
 .hint-line { color:#777; font-size:.9rem; }

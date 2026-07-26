@@ -22,6 +22,13 @@ TOPIC_IMAGES = {
     # Gieseler 시성곡선 a·b·c(연화개시·최고유동·고화)
     # → 25-2 Q17 그림과 일치
     "t26-104": ["images/25-2_1.jpg"],
+
+    # --- 직접 제작한 SVG 도표(data/diagrams/, 재빌드에도 지워지지 않음) ---
+    "t01-8": ["diagrams/tuyere-zones.svg"],          # 풍구 앞 A·B·C 영역
+    "t01-9": ["diagrams/flue-temp.svg"],             # Flue별 온도분포(PS~CS), ⓐ 편차
+    "t03-24": ["diagrams/quartz-transition.svg"],    # 석영 상변태 573/870/1470/1713℃
+    "t05-33": ["diagrams/boudouard-pressure.svg"],   # 부두아 압력 증가→우측 이동
+    "t47-157": ["diagrams/grain-distribution.svg"],  # 입도분포 (a)(b)(c)
 }
 
 # 회차 문제는 (회차, 번호) 자동 매칭이 전량 정확해 보정이 필요 없다.

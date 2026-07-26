@@ -7110,8 +7110,10 @@
             }
           ],
           "qid": "t01-8",
-          "images": [],
-          "imageNeeded": true,
+          "images": [
+            "diagrams/tuyere-zones.svg"
+          ],
+          "imageNeeded": false,
           "stars": 1,
           "groupId": "g-그림풍구앞상황을나타낸그림이다abc각부분의가스"
         },
@@ -7134,8 +7136,10 @@
             }
           ],
           "qid": "t01-9",
-          "images": [],
-          "imageNeeded": true,
+          "images": [
+            "diagrams/flue-temp.svg"
+          ],
+          "imageNeeded": false,
           "stars": 1,
           "groupId": "g-그림연소실flue별온도분포에서pusher측온"
         }
@@ -7547,8 +7551,10 @@
             }
           ],
           "qid": "t03-24",
-          "images": [],
-          "imageNeeded": true,
+          "images": [
+            "diagrams/quartz-transition.svg"
+          ],
+          "imageNeeded": false,
           "stars": 1,
           "groupId": "g-그림최고품질coke생산을위해최대로가열할수있는"
         }
@@ -7818,8 +7824,10 @@
             }
           ],
           "qid": "t05-33",
-          "images": [],
-          "imageNeeded": true,
+          "images": [
+            "diagrams/boudouard-pressure.svg"
+          ],
+          "imageNeeded": false,
           "stars": 2,
           "groupId": "g-그림a구역2coco₂c반응과co₂c2co반응"
         }
@@ -7878,7 +7886,31 @@
           ],
           "qid": "t06-35",
           "images": [],
-          "imageNeeded": true,
+          "table": {
+            "headers": [
+              "부위",
+              "요구특성",
+              "사용재질"
+            ],
+            "rows": [
+              [
+                "샤프트 상·중부",
+                "내마모성, 저기공률",
+                "점토질, 샤모트질"
+              ],
+              [
+                "샤프트 하부 · 벨리 · 보시",
+                "내Spalling성, 저기공률, 내마모성, 내용재성",
+                "고알루미나질, 흑연탄화규소질, 탄소질"
+              ],
+              [
+                "노상부 · 노저부",
+                "고내화성, 내용재성",
+                "미세탄화블록, 마이크로 카본블록"
+              ]
+            ]
+          },
+          "imageNeeded": false,
           "stars": 1,
           "groupId": "g-표고로부위별내화재의요구특성과사용재질을표로작성"
         },
@@ -9802,7 +9834,36 @@
           ],
           "qid": "t26-103",
           "images": [],
-          "imageNeeded": true,
+          "table": {
+            "headers": [
+              "분자식",
+              "명칭",
+              "Fe 함유량",
+              "비중",
+              "결정계",
+              "자성"
+            ],
+            "rows": [
+              [
+                "Fe₂O₃",
+                "적철광",
+                "70%",
+                "5.0",
+                "육방정계",
+                "약자성"
+              ],
+              [
+                "Fe₃O₄",
+                "자철광",
+                "72%",
+                "5.5",
+                "등축정계",
+                "강자성"
+              ]
+            ],
+            "note": "참고 — 갈철광 Fe₂O₃·H₂O 59.8% 약자성 / 능철광 FeCO₃ 48.2% 약자성"
+          },
+          "imageNeeded": false,
           "stars": 2,
           "groupId": "g-표적철광자철광의명칭fe함유량비중결정계자성을표"
         },
@@ -11291,8 +11352,10 @@
             }
           ],
           "qid": "t47-157",
-          "images": [],
-          "imageNeeded": true,
+          "images": [
+            "diagrams/grain-distribution.svg"
+          ],
+          "imageNeeded": false,
           "stars": 2,
           "groupId": "g-그림장입종노벽거리에따른장입물입도분포형상의괄호"
         }

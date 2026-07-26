@@ -1,5 +1,6 @@
 import os, io
 import openpyxl
+import numpy as np
 from PIL import Image
 # 문제 번호 판정은 워드 파서와 반드시 같은 규칙을 써야 한다.
 # (회차, 번호) 조인이 어긋나면 그림이 엉뚱한 문제에 붙는다.
@@ -17,10 +18,17 @@ ROTATE = {
     "21-1_4": 90,                                             # 소결 공정도
     "21-2_0": -90,                                            # 풍구 단면
     "24-2_3": 90, "25-2_1": 90, "25-2_2": 90,                 # 폰캡처 내부 눕힘
+    "24-1_0": 90,                                             # 열풍로 배관도(눕힘)
+    "24-2_2": 90,                                             # 노정장입물 4패널(눕힘)
 }
 # 휴대폰 촬영 앱 화면째로 캡처된 이미지 — 상단/하단 UI 바 제거(iOS 고정 위치)
 CROP_PHONE_UI = {"22-1_0", "24-1_0", "24-2_2", "24-2_3", "25-2_1", "25-2_2"}
 CROP_TOP, CROP_BOTTOM = 130, 115
+# UI를 잘라낸 뒤에도 남는 회색 배경·빈 여백을 잉크 영역까지 다듬는다
+TRIM_TO_CONTENT = set(CROP_PHONE_UI)
+INK_THRESHOLD = 170   # 이 값보다 어두우면 잉크(선·글자)로 본다
+INK_MIN_PIXELS = 3    # 노이즈 무시용 최소 잉크 픽셀 수
+TRIM_PADDING = 10
 
 
 def _question_rows(ws):
@@ -34,8 +42,22 @@ def _question_rows(ws):
     return out
 
 
-def _save(raw_bytes, path, rotate=0, crop_ui=False):
-    """폰 UI 크롭 → 회전 → 축소 → JPEG 저장."""
+def _ink_bbox(im):
+    """잉크(어두운 픽셀)가 차지하는 영역 + 여백. 없으면 None."""
+    g = np.asarray(im.convert("L"))
+    ink = g < INK_THRESHOLD
+    rows = np.where(ink.sum(axis=1) >= INK_MIN_PIXELS)[0]
+    cols = np.where(ink.sum(axis=0) >= INK_MIN_PIXELS)[0]
+    if len(rows) == 0 or len(cols) == 0:
+        return None
+    h, w = g.shape
+    p = TRIM_PADDING
+    return (max(0, int(cols.min()) - p), max(0, int(rows.min()) - p),
+            min(w, int(cols.max()) + p + 1), min(h, int(rows.max()) + p + 1))
+
+
+def _save(raw_bytes, path, rotate=0, crop_ui=False, trim=False):
+    """폰 UI 크롭 → 회전 → 잉크 영역 트림 → 축소 → JPEG 저장."""
     try:
         im = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
         if crop_ui:
@@ -43,6 +65,10 @@ def _save(raw_bytes, path, rotate=0, crop_ui=False):
             im = im.crop((0, CROP_TOP, w, h - CROP_BOTTOM))
         if rotate:
             im = im.rotate(rotate, expand=True)
+        if trim:
+            bb = _ink_bbox(im)
+            if bb:
+                im = im.crop(bb)
         if im.width > MAX_IMG_WIDTH:
             h2 = round(im.height * MAX_IMG_WIDTH / im.width)
             im = im.resize((MAX_IMG_WIDTH, h2), Image.LANCZOS)
@@ -73,6 +99,6 @@ def extract_images(xlsx_path, out_dir):
                 continue
             key = f"{sheet}_{i}"
             _save(img._data(), os.path.join(out_dir, key + ".jpg"),
-                  ROTATE.get(key, 0), key in CROP_PHONE_UI)
+                  ROTATE.get(key, 0), key in CROP_PHONE_UI, key in TRIM_TO_CONTENT)
             mapping.setdefault((sheet, owner), []).append(f"images/{key}.jpg")
     return mapping

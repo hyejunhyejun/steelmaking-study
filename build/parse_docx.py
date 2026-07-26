@@ -70,3 +70,80 @@ def parse_rounds_doc(lines):
         if in_answer and part is not None:
             part["answers"].append(s)
     return rounds
+
+
+TOPIC_RE = re.compile(r"^(\d\d)\.\s+(.+)$")
+PHOTO_Q_RE = re.compile(r"^문제\s*(\d+)\.\s*(.+)$", re.S)
+EXAM_PREFIX = "기출 출제:"
+EXAM_REF_RE = re.compile(r"(\d\d)년\s*(\d)회")
+
+
+def _exam_refs(text):
+    """'기출 출제: 21년 1회 · 22년 1회' → ['21-1', '22-1']"""
+    return [f"{y}-{n}" for y, n in EXAM_REF_RE.findall(text)]
+
+
+def parse_photos_doc(lines):
+    """사진정리본 워드 문서의 단락 리스트 → 유형 dict 리스트.
+
+    반환: [{"id":"t01","label":"01. 열풍로",
+            "questions":[{"num":int,"text":str,"examRefs":[str],
+                          "imagePlaceholders":int,"imageHint":str,
+                          "parts":[{"label":str,"answers":[str]}]}]}]
+    """
+    topics = []
+    cur = None
+    q = None
+    part = None
+    in_answer = False
+    for raw in lines:
+        s = raw.strip()
+        if not s:
+            continue
+        mq = PHOTO_Q_RE.match(s)
+        if mq:
+            if cur is None:
+                continue
+            q = {"num": int(mq.group(1)), "text": mq.group(2).strip(),
+                 "examRefs": [], "imagePlaceholders": 0, "imageHint": "",
+                 "parts": []}
+            cur["questions"].append(q)
+            part = None
+            in_answer = False
+            continue
+        mt = TOPIC_RE.match(s)
+        if mt:
+            cur = {"id": f"t{mt.group(1)}", "label": s, "questions": []}
+            topics.append(cur)
+            q = part = None
+            in_answer = False
+            continue
+        if cur is None:
+            continue
+        if s.startswith(EXAM_PREFIX):
+            if q is not None:
+                q["examRefs"] = _exam_refs(s)
+            in_answer = False
+            continue
+        if IMG_MARK in s:
+            if q is not None:
+                q["imagePlaceholders"] += 1
+                hint = s.split("］", 1)[-1].strip()
+                if hint:
+                    q["imageHint"] = hint
+            in_answer = False
+            continue
+        if s.startswith(ANSWER_PREFIX):
+            body = s[len(ANSWER_PREFIX):].strip()
+            if q is None:
+                continue
+            if part is None:
+                part = {"label": "", "answers": []}
+                q["parts"].append(part)
+            if body:
+                part["answers"].append(body)
+            in_answer = True
+            continue
+        if in_answer and part is not None:
+            part["answers"].append(s)
+    return topics

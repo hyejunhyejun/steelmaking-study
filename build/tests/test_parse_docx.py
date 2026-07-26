@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from parse_docx import parse_rounds_doc
+from parse_docx import parse_rounds_doc, parse_photos_doc
 
 
 def test_round_header_and_subquestions():
@@ -101,3 +101,38 @@ def test_multiple_rounds_and_labels():
     rounds = parse_rounds_doc(lines)
     assert [r["id"] for r in rounds] == ["21-1", "25-2"]
     assert [r["label"] for r in rounds] == ["2021년 1회차", "2025년 2회차"]
+
+
+def test_topic_with_exam_refs_and_hint():
+    lines = [
+        "01. 열풍로",
+        "문제 1.  열풍로의 형식(종류) 2가지와 각각의 특징을 쓰시오.",
+        "기출 출제: 21년 1회 · 22년 1회 · 25년 2회",
+        "답  내연식(Cowper): 연소실·축열실이 하나의 돔",
+        "외연식(Koppers): 열효율 우수",
+        "문제 8.  (그림) 풍구 앞 상황을 나타낸 그림이다. A, B, C 각 부분의 가스조성을 쓰시오.",
+        "［ 그림 삽입 위치 ］  풍구 앞 A·B·C 영역 구분도",
+        "답  A : O₂ + CO₂ + CO + N₂",
+    ]
+    topics = parse_photos_doc(lines)
+    assert len(topics) == 1
+    t = topics[0]
+    assert t["id"] == "t01"
+    assert t["label"] == "01. 열풍로"
+    q1, q2 = t["questions"]
+    assert q1["num"] == 1
+    assert q1["examRefs"] == ["21-1", "22-1", "25-2"]
+    assert q1["parts"][0]["answers"] == [
+        "내연식(Cowper): 연소실·축열실이 하나의 돔",
+        "외연식(Koppers): 열효율 우수",
+    ]
+    assert q2["examRefs"] == []
+    assert q2["imagePlaceholders"] == 1
+    assert q2["imageHint"] == "풍구 앞 A·B·C 영역 구분도"
+
+
+def test_topic_header_not_confused_with_question():
+    lines = ["03. 코크스", "문제 13.  제철용 코크스 구비조건 5가지를 쓰시오.", "답  ① 불순물 적을 것"]
+    topics = parse_photos_doc(lines)
+    assert topics[0]["id"] == "t03"
+    assert topics[0]["questions"][0]["num"] == 13

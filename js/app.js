@@ -11,6 +11,14 @@ let DATA = null;
 
 const MODE_LABELS = { practice: "연습", test: "테스트", exam: "시험" };
 
+// 그림 클릭 시 원본 크기로 확대/축소 (화면 전환마다 다시 붙이지 않도록 위임 처리)
+app.addEventListener("click", (e) => {
+  const img = e.target;
+  if (img instanceof HTMLImageElement && img.classList.contains("qimg")) {
+    img.classList.toggle("zoomed");
+  }
+});
+
 /* ---------------- 홈 ---------------- */
 
 function home() {

@@ -15,7 +15,10 @@ button.round.wrong { background:#fff7f2; }
 .qhead { display:flex; gap:.4rem; align-items:baseline; flex-wrap:wrap; }
 .qnum { font-weight:700; } .qtext { flex:1; } .stars { color:#e6a100; }
 .src { color:#a86; font-size:.85em; }
-.qimg { max-width:100%; height:auto; margin:.6rem 0; border:1px solid #eee; }
+/* 그림은 기본적으로 화면을 덜 차지하게 높이를 제한하고, 클릭하면 원본 크기로 확대 */
+.qimg { display:block; max-width:100%; max-height:340px; width:auto; height:auto;
+        margin:.6rem 0; border:1px solid #eee; cursor:zoom-in; }
+.qimg.zoomed { max-height:none; cursor:zoom-out; }
 .plabel { font-weight:600; margin-top:.5rem; }
 .answers { margin:.3rem 0 .3rem 1.1rem; } .answers li { margin:.15rem 0; }
 sub, sup { font-size:.75em; }

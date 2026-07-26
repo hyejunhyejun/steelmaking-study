@@ -14,7 +14,7 @@ function ownerBadge(q) {
 // 그림이 있으면 표시, 그림자리가 있는데 못 채웠으면 '그림 준비중' 박스
 export function imageBlock(q) {
   const imgs = (q.images || [])
-    .map((s) => `<img class="qimg" src="data/${s}" alt="문제 그림" loading="lazy" decoding="async" />`)
+    .map((s) => `<img class="qimg" src="data/${s}" alt="문제 그림" title="클릭하면 원본 크기로 확대" loading="lazy" decoding="async" />`)
     .join("");
   if (imgs) return imgs;
   if (q.imageNeeded) {

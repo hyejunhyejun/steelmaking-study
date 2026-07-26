@@ -16,7 +16,7 @@ ROTATE = {
     "24-1_1": 90, "24-2_0": 90, "25-1_2": 90, "25-2_0": 90,  # 부두아(8장 동일)
     "21-1_3": 90, "24-2_1": 90,                               # 슬래그 삼원계
     "21-1_4": 90,                                             # 소결 공정도
-    "21-2_0": -90,                                            # 풍구 단면
+    "21-2_0": 90,                                             # 풍구 단면
     "24-2_3": 90, "25-2_1": 90, "25-2_2": 90,                 # 폰캡처 내부 눕힘
     "24-1_0": 90,                                             # 열풍로 배관도(눕힘)
     "24-2_2": 90,                                             # 노정장입물 4패널(눕힘)
@@ -25,10 +25,21 @@ ROTATE = {
 CROP_PHONE_UI = {"22-1_0", "24-1_0", "24-2_2", "24-2_3", "25-2_1", "25-2_2"}
 CROP_TOP, CROP_BOTTOM = 130, 115
 # UI를 잘라낸 뒤에도 남는 회색 배경·빈 여백을 잉크 영역까지 다듬는다
-TRIM_TO_CONTENT = set(CROP_PHONE_UI)
 INK_THRESHOLD = 170   # 이 값보다 어두우면 잉크(선·글자)로 본다
 INK_MIN_PIXELS = 3    # 노이즈 무시용 최소 잉크 픽셀 수
 TRIM_PADDING = 10
+
+# 스캔·촬영으로 기울어진 그림을 자동으로 바로 세운다.
+# 행별 잉크량의 분산이 최대가 되는 각도를 찾는다(수평선이 정렬될 때 최대).
+DESKEW_RANGE = [i * 0.5 for i in range(-10, 11)]   # -5.0 ~ +5.0도
+DESKEW_MIN_GAIN = 0.06   # 이 비율 이상 개선될 때만 적용(오작동 방지)
+
+# 그림에 문제 지문이 함께 촬영된 경우 — 지문을 잘라내고 그림만 남긴다.
+# 값은 (좌, 상, 우, 하) 비율. 트림 후 최종 단계에 적용.
+TEXT_CROP = {
+    "24-2_3": (0.00, 0.40, 1.00, 0.74),   # '20 다음의 안전 표지판에…' 지문 제거
+    "25-2_2": (0.20, 0.20, 1.00, 1.00),   # '19 다음 그림은 소결의 급광장치…' 지문 제거
+}
 
 
 def _question_rows(ws):
@@ -56,8 +67,62 @@ def _ink_bbox(im):
             min(w, int(cols.max()) + p + 1), min(h, int(rows.max()) + p + 1))
 
 
-def _save(raw_bytes, path, rotate=0, crop_ui=False, trim=False):
-    """폰 UI 크롭 → 회전 → 잉크 영역 트림 → 축소 → JPEG 저장."""
+def _strip_dark_borders(im, dark=60, ratio=0.9):
+    """스크린샷 레터박스(균일한 검은 띠)를 잘라낸다."""
+    g = np.asarray(im.convert("L"))
+    h, w = g.shape
+    top, bottom, left, right = 0, h, 0, w
+    while top < bottom and (g[top, left:right] < dark).mean() > ratio:
+        top += 1
+    while bottom > top and (g[bottom - 1, left:right] < dark).mean() > ratio:
+        bottom -= 1
+    while left < right and (g[top:bottom, left] < dark).mean() > ratio:
+        left += 1
+    while right > left and (g[top:bottom, right - 1] < dark).mean() > ratio:
+        right -= 1
+    if (left, top, right, bottom) == (0, 0, w, h):
+        return im
+    return im.crop((left, top, right, bottom))
+
+
+def _row_ink_variance(im):
+    """행별 잉크량의 분산 — 수평선이 정렬될수록 커진다."""
+    g = np.asarray(im.convert("L"))
+    return float((g < INK_THRESHOLD).sum(axis=1).astype(float).var())
+
+
+def _deskew(im):
+    """기울어진 스캔을 바로 세운다(개선폭이 작으면 원본 유지)."""
+    base = _row_ink_variance(im)
+    if base <= 0:
+        return im
+    best_angle, best_score = 0.0, base
+    for a in DESKEW_RANGE:
+        if a == 0:
+            continue
+        cand = im.rotate(a, expand=False, fillcolor=(255, 255, 255))
+        s = _row_ink_variance(cand)
+        if s > best_score:
+            best_angle, best_score = a, s
+    if best_angle == 0 or best_score / base - 1 < DESKEW_MIN_GAIN:
+        return im
+    # 잘림 없이 회전한 뒤 남는 여백은 뒤이은 트림에서 제거된다
+    return im.rotate(best_angle, expand=True, fillcolor=(255, 255, 255))
+
+
+def _straighten(im):
+    """여백 트림 → 기울기 보정 → 재트림. 여백이 크면 기울기 측정이 흐려진다."""
+    for _ in range(2):
+        bb = _ink_bbox(im)
+        if bb:
+            im = im.crop(bb)
+        im = _deskew(im)
+    bb = _ink_bbox(im)
+    return im.crop(bb) if bb else im
+
+
+def _save(raw_bytes, path, rotate=0, crop_ui=False, text_crop=None):
+    """폰 UI 크롭 → 90도 회전 → 기울기 보정 → 잉크 트림 → 지문 제거 → 축소 → 저장."""
     try:
         im = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
         if crop_ui:
@@ -65,10 +130,14 @@ def _save(raw_bytes, path, rotate=0, crop_ui=False, trim=False):
             im = im.crop((0, CROP_TOP, w, h - CROP_BOTTOM))
         if rotate:
             im = im.rotate(rotate, expand=True)
-        if trim:
-            bb = _ink_bbox(im)
-            if bb:
-                im = im.crop(bb)
+        im = _strip_dark_borders(im)
+        im = _straighten(im)
+        if text_crop:
+            w, h = im.size
+            l, t, r, b = text_crop
+            im = im.crop((int(w * l), int(h * t), int(w * r), int(h * b)))
+            # 지문을 떼어낸 뒤 다시 재보정(남은 그림 기준으로 기울기가 달라진다)
+            im = _straighten(im)
         if im.width > MAX_IMG_WIDTH:
             h2 = round(im.height * MAX_IMG_WIDTH / im.width)
             im = im.resize((MAX_IMG_WIDTH, h2), Image.LANCZOS)
@@ -99,6 +168,6 @@ def extract_images(xlsx_path, out_dir):
                 continue
             key = f"{sheet}_{i}"
             _save(img._data(), os.path.join(out_dir, key + ".jpg"),
-                  ROTATE.get(key, 0), key in CROP_PHONE_UI, key in TRIM_TO_CONTENT)
+                  ROTATE.get(key, 0), key in CROP_PHONE_UI, TEXT_CROP.get(key))
             mapping.setdefault((sheet, owner), []).append(f"images/{key}.jpg")
     return mapping

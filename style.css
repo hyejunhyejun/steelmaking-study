@@ -28,6 +28,21 @@ textarea.ans { width:100%; font-size:16px; padding:.5rem; border:1px solid #cfcf
 .submit { padding:.8rem 1.2rem; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; margin:.8rem 0; }
 .rline { border-top:1px solid #eee; padding:.5rem 0; }
 
+button.round.alt { background:#f4f8ff; }
+.topic-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:.5rem; }
+button.topic { text-align:left; padding:.7rem .9rem; border:1px solid #d8d8d8; border-radius:10px; background:#fff; cursor:pointer; font-size:.95rem; }
+button.topic:hover { border-color:var(--accent); }
+button.topic small { display:block; color:#888; margin-top:.2rem; }
+.exam-badge { background:#eef6ff; color:#26619c; border:1px solid #cfe3f7; border-radius:999px; padding:.05rem .45rem; font-size:.78rem; }
+.img-pending { border:1px dashed #c9c9c9; border-radius:10px; color:#999; background:#fbfbfb; padding:1.4rem .8rem; text-align:center; margin:.6rem 0; font-size:.9rem; }
+.img-pending small { color:#aaa; }
+button.danger { padding:.6rem 1rem; border:1px solid #e2b6b6; border-radius:8px; background:#fff5f5; color:#b13; cursor:pointer; margin:.4rem 0 .8rem; }
+.result-line { font-size:1.05rem; }
+.hint-line { color:#777; font-size:.9rem; }
+.mark-row { margin:.35rem 0; display:flex; gap:.35rem; align-items:center; }
+button.mini { padding:.25rem .6rem; border:1px solid #cfcfcf; border-radius:6px; background:#fff; cursor:pointer; font-size:.85rem; }
+.mark-state { color:var(--accent); font-size:.85rem; }
+
 @media (max-width: 640px) {
   main { padding:.7rem; }
   .round-grid { grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); }

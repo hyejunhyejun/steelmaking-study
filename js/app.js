@@ -1,6 +1,6 @@
 import { loadData, findByQid } from "./data.js";
 import {
-  renderQuestionCard, imageBlock, tableBlock, conditionBlock,
+  renderQuestionCard, imageBlock, tableBlock, questionTableBlock, conditionBlock,
   questionHead, addWrongButton,
 } from "./render.js";
 import { matchKeywords } from "./grading.js";
@@ -161,7 +161,7 @@ function startTest(collection, backFn) {
       <button class="back">← 뒤로</button>
       <div class="progress">${i + 1} / ${collection.questions.length}${marks[q.qid] === true ? " · 맞음 표시됨" : marks[q.qid] === false ? " · 틀림 표시됨" : ""}</div>
       <article class="qcard">
-        ${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}
+        ${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}${questionTableBlock(q)}
         ${inputs}
         ${addWrongButton(q, wrongIds.includes(q.qid))}
       </article>
@@ -257,7 +257,7 @@ function startExam(collection, backFn) {
       const label = p.label ? `<div class="plabel">${renderFormula(p.label)}</div>` : "";
       return `${label}<textarea class="ans" data-qi="${qi}" data-pi="${pi}" rows="2"></textarea>`;
     }).join("");
-    return `<article class="qcard">${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}${parts}</article>`;
+    return `<article class="qcard">${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}${questionTableBlock(q)}${parts}</article>`;
   }).join("");
   app.innerHTML = `<button class="back">← 뒤로</button><h2>${collection.label} · 시험</h2>
     ${forms}<button class="submit">제출하고 채점</button><div id="result"></div>${bottomBack("← 뒤로")}`;

@@ -226,3 +226,38 @@ def extract_docx_photos(docx_path, out_dir, wanted_nums):
             _save(blob, os.path.join(out_dir, name))
             found[cur] = f"images/{name}"
     return found
+
+
+# ---------------------------------------------------------------------------
+# 추가 노트 사진(29장)에서 특정 그림만 잘라 쓰기
+# ---------------------------------------------------------------------------
+# 화면을 찍은 사진이라 회색빛·모아레가 있어 색을 유지한 채 대비를 올린다.
+NOTE_FIGURES = {
+    # 저장이름: (사진 인덱스(0부터), 자를 영역(좌,상,우,하))
+    "note_quartz": (4, (100, 128, 562, 362)),    # 5쪽 석영 상변태 곡선
+}
+
+
+def _enhance_screen_photo(im):
+    from PIL import ImageOps, ImageEnhance
+    im = ImageOps.autocontrast(im, cutoff=(1, 10))
+    im = ImageEnhance.Color(im).enhance(1.3)
+    return ImageEnhance.Contrast(im).enhance(1.15)
+
+
+def extract_note_figures(notes_dir, out_dir):
+    """노트 사진에서 지정한 그림을 잘라 저장하고 {이름: 상대경로} 반환."""
+    if not os.path.isdir(notes_dir):
+        return {}
+    files = sorted(os.listdir(notes_dir))
+    os.makedirs(out_dir, exist_ok=True)
+    made = {}
+    for name, (idx, box) in NOTE_FIGURES.items():
+        if idx >= len(files):
+            continue
+        im = Image.open(os.path.join(notes_dir, files[idx])).convert("RGB").crop(box)
+        buf = io.BytesIO()
+        _enhance_screen_photo(im).save(buf, "PNG")
+        _save(buf.getvalue(), os.path.join(out_dir, name + ".jpg"))
+        made[name] = f"images/{name}.jpg"
+    return made

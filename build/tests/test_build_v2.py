@@ -38,13 +38,21 @@ def test_topic_image_from_map():
     assert q["imageNeeded"] is False
 
 
-def test_image_needed_flag_when_placeholder_unfilled():
-    """그림자리는 있으나 채울 그림이 없으면 imageNeeded=True, 힌트는 남는다."""
+def test_no_pending_images_left():
+    """모든 그림자리가 그림·표로 채워졌거나 그림 불필요로 정리되었다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    pending = [q["qid"] for c in d["rounds"] + d["topics"]
+               for q in c["questions"] if q["imageNeeded"]]
+    assert pending == [], pending
+
+
+def test_question_marked_no_image_needed():
+    """그림 없이 문제·답만으로 충분한 문항은 '준비중'을 띄우지 않는다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     r = next(r for r in d["rounds"] if r["id"] == "22-1")
     q = next(q for q in r["questions"] if q["qid"] == "22-1-16")
     assert q["images"] == []
-    assert q["imageNeeded"] is True
+    assert q["imageNeeded"] is False
 
 
 def test_svg_diagrams_are_attached():
@@ -54,8 +62,8 @@ def test_svg_diagrams_are_attached():
     expected = {
         "t01-8": "diagrams/tuyere-zones.svg",
         "t01-9": "diagrams/flue-temp.svg",
-        "t03-24": "diagrams/quartz-transition.svg",
         "t05-33": "diagrams/boudouard-pressure.svg",
+        "t12-57": "diagrams/slag-ternary.svg",
         }
     for qid, path in expected.items():
         assert by_qid[qid]["images"] == [path], qid
@@ -114,3 +122,30 @@ def test_non_table_questions_have_no_table_key():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     q = next(q for r in d["rounds"] for q in r["questions"] if q["qid"] == "21-1-1")
     assert "table" not in q
+
+
+def test_real_figures_replace_svg_where_available():
+    """실물 그림이 있는 문항은 SVG 대신 사진을 쓴다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    assert by_qid["t03-24"]["images"] == ["images/note_quartz.jpg"]
+    assert by_qid["t12-58"]["images"] == ["images/photo_58.jpg"]
+    assert by_qid["t47-155"]["images"] == ["images/photo_155.jpg"]
+
+
+def test_duplicate_questions_share_one_answer():
+    """회차·유형에 중복 수록된 문항은 같은 답을 보여준다(외우기 쉽게)."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    for a, b in [("t13-64", "23-1-16"), ("t14-66", "22-2-9"),
+                 ("t14-67", "25-2-3"), ("t01-5", "24-2-11")]:
+        assert by_qid[a]["parts"] == by_qid[b]["parts"], (a, b)
+
+
+def test_ore_calculation_typo_fixed():
+    """광석량 계산의 품위 오타(0.067)와 결과값이 바로잡혔다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    q = next(q for r in d["rounds"] for q in r["questions"] if q["qid"] == "24-1-10")
+    text = " ".join(a for p in q["parts"] for a in p["answers"])
+    assert "0.607" in text and "0.067" not in text
+    assert "1,616.22kg" in text

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 400" width="460" height="400" font-family="system-ui, 'Malgun Gothic', sans-serif">
+  <rect width="460" height="400" fill="#ffffff"/>
+  <!-- 삼각형 꼭짓점: SiO2(위), CaO(좌하), Al2O3(우하) -->
+  <!-- 좌표: 위(230,40) 좌(40,330) 우(420,330) -->
+  <g stroke="#333" stroke-width="1.6" fill="none">
+    <polygon points="230,40 40,330 420,330"/>
+  </g>
+  <!-- 4등분 격자선 -->
+  <g stroke="#9aa3ad" stroke-width="1">
+    <!-- 밑변에 평행 -->
+    <line x1="182.5" y1="112.5" x2="277.5" y2="112.5"/>
+    <line x1="135" y1="185" x2="325" y2="185"/>
+    <line x1="87.5" y1="257.5" x2="372.5" y2="257.5"/>
+    <!-- 좌변에 평행 -->
+    <line x1="277.5" y1="112.5" x2="135" y2="330"/>
+    <line x1="325" y1="185" x2="230" y2="330"/>
+    <line x1="372.5" y1="257.5" x2="325" y2="330"/>
+    <!-- 우변에 평행 -->
+    <line x1="182.5" y1="112.5" x2="325" y2="330"/>
+    <line x1="135" y1="185" x2="230" y2="330"/>
+    <line x1="87.5" y1="257.5" x2="135" y2="330"/>
+  </g>
+  <!-- A점: SiO2 50, CaO 50, Al2O3 0 → 좌변 중점 -->
+  <circle cx="135" cy="185" r="5.5" fill="#111"/>
+  <text x="112" y="180" font-size="15" font-weight="700" fill="#111">A</text>
+  <!-- B점: SiO2 25, CaO 25, Al2O3 50 -->
+  <circle cx="277.5" cy="257.5" r="5.5" fill="#111"/>
+  <text x="286" y="252" font-size="15" font-weight="700" fill="#111">B</text>
+  <!-- 꼭짓점 라벨 -->
+  <text x="205" y="30" font-size="15" fill="#111">SiO₂</text>
+  <text x="10" y="348" font-size="15" fill="#111">CaO</text>
+  <text x="388" y="348" font-size="15" fill="#111">Al₂O₃</text>
+  <!-- 눈금 비율 안내 -->
+  <text x="120" y="378" font-size="11" fill="#888">※ 격자 한 칸 = 25%</text>
+</svg>

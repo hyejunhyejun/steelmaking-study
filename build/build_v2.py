@@ -4,9 +4,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import docx
 from parse_docx import parse_rounds_doc, parse_photos_doc
-from images import extract_images, extract_docx_photos
-from imagemap import TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS
+from images import extract_images, extract_docx_photos, extract_note_figures
+from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
+                      NO_IMAGE_NEEDED)
 from tables import TABLES
+from answers import ANSWER_OVERRIDES, ANSWER_UNIFY
 from derive import derive_keywords, normalize
 
 
@@ -21,11 +23,19 @@ def _finish(q, qid, images):
     table = TABLES.get(qid)
     if table:
         q["table"] = table
-    # 그림자리가 있어도 그림이나 표로 채워졌으면 '준비중'이 아니다
-    q["imageNeeded"] = bool(q.get("imagePlaceholders", 0)) and not images and not table
+    # 그림자리가 있어도 그림·표로 채워졌거나 그림이 불필요하면 '준비중'이 아니다
+    q["imageNeeded"] = (bool(q.get("imagePlaceholders", 0)) and not images
+                        and not table and qid not in NO_IMAGE_NEEDED)
     q["imageHint"] = q.get("imageHint", "")
     q["conditions"] = q.get("conditions", [])
     q.pop("imagePlaceholders", None)
+    # 워드에 답이 없는 문항만 보강한다(정본은 워드)
+    if qid in ANSWER_OVERRIDES and not any(p["answers"] for p in q["parts"]):
+        q["parts"] = [dict(p) for p in ANSWER_OVERRIDES[qid]]
+    # 회차·유형에 중복 수록된 문항은 한 가지 답으로 통일한다
+    if qid in ANSWER_UNIFY:
+        q["parts"] = [dict(p) for p in ANSWER_UNIFY[qid]]
+        q["unified"] = True
     # 작도 문제(답이 그림 자체)는 답 단락이 없다 → UI 일관성을 위해 빈 파트 보장
     if not q["parts"]:
         q["parts"] = [{"label": "", "answers": []}]
@@ -63,6 +73,9 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
     # 워드에 내장된 실제 사진(스키머·입도분포 등)은 그대로 사용한다
     photos = extract_docx_photos(photos_docx, os.path.join(out_dir, "images"),
                                  DOCX_PHOTO_NUMS)
+    # 노트 사진에서 잘라 쓰는 실물 그림(석영 상변태 등)
+    extract_note_figures(os.path.join(os.path.dirname(photos_docx), "추가노트사진"),
+                         os.path.join(out_dir, "images"))
 
     for t in topics:
         t["type"] = "topic"

@@ -35,14 +35,23 @@ export function imageBlock(q) {
   return "";
 }
 
-// 표로 출제되는 문제는 HTML 표로 렌더(그림 대신)
-export function tableBlock(q) {
-  if (!q.table) return "";
-  const { headers, rows, note } = q.table;
+function tableHtml(headers, rows, note) {
   return `<div class="table-wrap"><table class="qtable">
       <thead><tr>${headers.map((h) => `<th>${renderFormula(h)}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${renderFormula(c)}</td>`).join("")}</tr>`).join("")}</tbody>
+      <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c ? renderFormula(c) : "&nbsp;"}</td>`).join("")}</tr>`).join("")}</tbody>
     </table>${note ? `<p class="tnote">${renderFormula(note)}</p>` : ""}</div>`;
+}
+
+// 문제에 함께 보여줄 빈칸 표(원본 시험지 형태)
+export function questionTableBlock(q) {
+  if (!q.table || !q.table.questionRows) return "";
+  return tableHtml(q.table.headers, q.table.questionRows, "");
+}
+
+// 채점 후 공개할 정답 표
+export function tableBlock(q) {
+  if (!q.table) return "";
+  return tableHtml(q.table.headers, q.table.rows, q.table.note);
 }
 
 // 문제 머리(번호·본문·배지). displayNum이 있으면 그 번호로 표시(랜덤 모드 1~20)
@@ -68,7 +77,7 @@ export function renderQuestionCard(q, { showAnswers, wrongIds = [] }) {
     return `<div class="part">${label}${ans}</div>`;
   }).join("");
   el.innerHTML = questionHead(q) + conditionBlock(q) + imageBlock(q) +
-    (showAnswers ? tableBlock(q) : "") + parts +
+    questionTableBlock(q) + (showAnswers ? tableBlock(q) : "") + parts +
     addWrongButton(q, wrongIds.includes(q.qid));
   return el;
 }

@@ -173,3 +173,20 @@ button.danger {
   .round-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
   h1 { font-size: 1rem; }
 }
+
+/* 연습 모드: 답 가리기 */
+.part.masked .answers, .part.masked .table-wrap { display: none; }
+.part:not(.masked) > .reveal-part { display: none; }
+button.reveal-part {
+  margin: .35rem 0; padding: .35rem .8rem; border: 1px dashed var(--border);
+  border-radius: 8px; background: var(--bg); color: var(--muted);
+  cursor: pointer; font-size: .88rem;
+}
+button.reveal-part:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 모드 선택 버튼의 설명 문구 */
+.mode-grid button { display: flex; flex-direction: column; gap: .15rem; align-items: flex-start; }
+.mode-grid button small { color: var(--muted); font-size: .78rem; }
+
+/* 단축키 안내 */
+.shortcut-hint { color: var(--muted); font-size: .85rem; margin: .5rem 0; }

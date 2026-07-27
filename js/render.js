@@ -66,18 +66,25 @@ export function addWrongButton(q, saved) {
       ${saved ? "✓ 오답노트에 있음" : "＋ 오답노트에 추가"}</button>`;
 }
 
-export function renderQuestionCard(q, { showAnswers, wrongIds = [] }) {
+// masked=true면 답을 가리고 '답 보기'를 눌러야 열린다(먼저 떠올리는 연습용)
+export function renderQuestionCard(q, { showAnswers, masked = false, wrongIds = [] }) {
   const el = document.createElement("article");
   el.className = "qcard";
   const parts = q.parts.map((p) => {
     const label = p.label ? `<div class="plabel">${renderFormula(p.label)}</div>` : "";
-    const ans = showAnswers && p.answers.length
-      ? `<ul class="answers">${p.answers.map((a) => `<li>${renderFormula(a)}</li>`).join("")}</ul>`
-      : "";
-    return `<div class="part">${label}${ans}</div>`;
+    if (!showAnswers || !p.answers.length) return `<div class="part">${label}</div>`;
+    const list = `<ul class="answers">${p.answers.map((a) => `<li>${renderFormula(a)}</li>`).join("")}</ul>`;
+    if (!masked) return `<div class="part">${label}${list}</div>`;
+    return `<div class="part masked">${label}
+        <button class="reveal-part" type="button">답 보기</button>${list}</div>`;
   }).join("");
+  // 표가 곧 정답인 문항은 연습 모드에서 표도 함께 가린다
+  const answerTable = showAnswers && q.table
+    ? (masked ? `<div class="part masked"><button class="reveal-part" type="button">답 보기</button>${tableBlock(q)}</div>`
+              : tableBlock(q))
+    : "";
   el.innerHTML = questionHead(q) + conditionBlock(q) + imageBlock(q) +
-    questionTableBlock(q) + (showAnswers ? tableBlock(q) : "") + parts +
+    questionTableBlock(q) + answerTable + parts +
     addWrongButton(q, wrongIds.includes(q.qid));
   return el;
 }

@@ -12,8 +12,28 @@ import { addWrong, removeWrong, listWrong, clearWrong } from "./wrongnote.js";
 const app = document.getElementById("app");
 let DATA = null;
 
-const MODE_LABELS = { practice: "연습", test: "테스트", exam: "시험" };
+const MODE_LABELS = { study: "공부", practice: "연습", test: "테스트", exam: "시험" };
+const MODE_HINTS = {
+  study: "문제와 답을 함께 보며 익히기",
+  practice: "답을 가리고 먼저 떠올린 뒤 확인하기",
+  test: "한 문제씩 타이핑하고 채점하기",
+  exam: "회차 전체를 풀고 한 번에 채점하기",
+};
 const RANDOM_COUNT = 20;
+
+/* ---------------- 키보드 단축키 ---------------- */
+// 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
+let keyHandler = null;
+document.addEventListener("keydown", (e) => { if (keyHandler) keyHandler(e); });
+
+function inTypingField(e) {
+  const t = e.target;
+  return t instanceof HTMLTextAreaElement || t instanceof HTMLInputElement;
+}
+
+function shortcutHint(text) {
+  return `<p class="shortcut-hint">⌨ ${text}</p>`;
+}
 
 /* ---------------- 저장소 (문제 번호 체계가 바뀌면 초기화) ---------------- */
 
@@ -61,6 +81,7 @@ function bindBacks(fn) {
 /* ---------------- 홈 ---------------- */
 
 function home() {
+  keyHandler = null;
   const rounds = DATA.rounds || [];
   const topics = DATA.topics || [];
   const topicQCount = topics.reduce((n, t) => n + t.questions.length, 0);
@@ -100,36 +121,65 @@ function startTopicsAll() {
 /* ---------------- 모드 선택 ---------------- */
 
 function modesFor(collection) {
-  if (collection.type === "topic") return ["practice", "test"];
-  if (collection.type === "random") return ["practice", "test"];
-  if (collection.type === "wrong") return ["practice", "test"];
-  return ["practice", "test", "exam"];
+  if (collection.type === "exam") return ["study", "practice", "test", "exam"];
+  return ["study", "practice", "test"];
 }
 
 function renderModeSelect(collection, backFn = home) {
+  keyHandler = null;
   const modes = modesFor(collection);
   app.innerHTML = `
     <button class="back">← 뒤로</button>
     <h2>${collection.label} <small>${collection.questions.length}문제</small></h2>
-    <div class="mode-grid">${modes.map((m) => `<button data-mode="${m}">${MODE_LABELS[m]}</button>`).join("")}</div>`;
+    <div class="mode-grid">${modes.map((m) =>
+      `<button data-mode="${m}">${MODE_LABELS[m]}<small>${MODE_HINTS[m]}</small></button>`).join("")}</div>`;
   bindBacks(backFn);
-  const start = { practice: startPractice, test: startTest, exam: startExam };
+  const start = { study: startStudy, practice: startPractice, test: startTest, exam: startExam };
   modes.forEach((m) =>
     app.querySelector(`[data-mode="${m}"]`)
       .addEventListener("click", () => start[m](collection, () => renderModeSelect(collection, backFn)))
   );
 }
 
-/* ---------------- 연습 ---------------- */
+/* ---------------- 공부 (문제 + 답 함께 보기) ---------------- */
 
-function startPractice(collection, backFn) {
+function startStudy(collection, backFn) {
+  keyHandler = null;
   const wrongIds = listWrong(localStorage);
   app.innerHTML = `<button class="back">← 뒤로</button>
-    <h2>${collection.label} · 연습</h2><div id="list"></div>${bottomBack("← 뒤로")}`;
+    <h2>${collection.label} · 공부</h2><div id="list"></div>${bottomBack("← 뒤로")}`;
   bindBacks(backFn);
   const list = app.querySelector("#list");
   collection.questions.forEach((q) =>
     list.appendChild(renderQuestionCard(q, { showAnswers: true, wrongIds }))
+  );
+}
+
+/* ---------------- 연습 (답 가리고 떠올린 뒤 확인) ---------------- */
+
+function startPractice(collection, backFn) {
+  keyHandler = null;
+  const wrongIds = listWrong(localStorage);
+  app.innerHTML = `<button class="back">← 뒤로</button>
+    <h2>${collection.label} · 연습</h2>
+    <p class="hint-line">답이 가려져 있습니다. 먼저 떠올린 뒤 <b>답 보기</b>를 누르세요.</p>
+    <div class="controls">
+      <button id="reveal-all">모두 보기</button>
+      <button id="hide-all">모두 가리기</button>
+    </div>
+    <div id="list"></div>${bottomBack("← 뒤로")}`;
+  bindBacks(backFn);
+  const list = app.querySelector("#list");
+  collection.questions.forEach((q) =>
+    list.appendChild(renderQuestionCard(q, { showAnswers: true, masked: true, wrongIds }))
+  );
+  app.querySelector("#reveal-all").addEventListener("click", () =>
+    list.querySelectorAll(".part.masked").forEach((p) => p.classList.remove("masked"))
+  );
+  app.querySelector("#hide-all").addEventListener("click", () =>
+    list.querySelectorAll(".part").forEach((p) => {
+      if (p.querySelector(".reveal-part")) p.classList.add("masked");
+    })
   );
 }
 
@@ -178,6 +228,7 @@ function startTest(collection, backFn) {
         <button class="next" ${i === collection.questions.length - 1 ? "disabled" : ""}>다음 문제 →</button>
         <span class="spacer"></span>
       </div>
+      ${shortcutHint("Ctrl+Enter 채점 · Alt+← / Alt+→ 이전·다음 문제 (입력창 밖에서는 ← → 만으로도 이동)")}
       ${bottomBack("← 목록으로")}`;
     bindBacks(backFn);
     app.querySelector(".check").addEventListener("click", doCheck);
@@ -186,6 +237,21 @@ function startTest(collection, backFn) {
     app.querySelector(".prev").addEventListener("click", () => move(-1));
     app.querySelector(".next").addEventListener("click", () => move(1));
     if (checked[q.qid]) doCheck();
+    app.querySelector("textarea.ans")?.focus();
+
+    keyHandler = (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        // 이미 채점했으면 한 번 더 눌러 다음 문제로
+        if (app.querySelector(".reveal")?.hidden === false) move(1);
+        else doCheck();
+        return;
+      }
+      const nav = e.altKey || !inTypingField(e);
+      if (!nav) return;
+      if (e.key === "ArrowRight") { e.preventDefault(); move(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); move(-1); }
+    };
   }
 
   function captureTyped() {
@@ -237,6 +303,7 @@ function startTest(collection, backFn) {
 }
 
 function renderTestDone(collection, marks, backFn) {
+  keyHandler = null;
   const total = collection.questions.length;
   const okCount = collection.questions.filter((q) => marks[q.qid]).length;
   app.innerHTML = `
@@ -260,9 +327,16 @@ function startExam(collection, backFn) {
     return `<article class="qcard">${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}${questionTableBlock(q)}${parts}</article>`;
   }).join("");
   app.innerHTML = `<button class="back">← 뒤로</button><h2>${collection.label} · 시험</h2>
+    ${shortcutHint("Ctrl+Enter 제출하고 채점")}
     ${forms}<button class="submit">제출하고 채점</button><div id="result"></div>${bottomBack("← 뒤로")}`;
   bindBacks(backFn);
   app.querySelector(".submit").addEventListener("click", () => grade(collection));
+  keyHandler = (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      grade(collection);
+    }
+  };
 }
 
 function grade(collection) {
@@ -318,6 +392,7 @@ function startRandom() {
 /* ---------------- 오답노트 ---------------- */
 
 function renderWrongNote() {
+  keyHandler = null;
   const qids = listWrong(localStorage);
   const questions = qids.map((id) => findByQid(DATA, id)).filter(Boolean);
   const collection = { id: "wrongnote", label: "오답노트", type: "wrong", questions };
@@ -353,6 +428,10 @@ app.addEventListener("click", (e) => {
   const el = e.target;
   if (el instanceof HTMLImageElement && el.classList.contains("qimg")) {
     el.classList.toggle("zoomed");
+    return;
+  }
+  if (el instanceof HTMLElement && el.classList.contains("reveal-part")) {
+    el.closest(".part").classList.remove("masked");
     return;
   }
   if (el instanceof HTMLElement && el.classList.contains("add-wrong")) {

@@ -4,8 +4,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import docx
 from parse_docx import parse_rounds_doc, parse_photos_doc
-from images import extract_images
-from imagemap import TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES
+from images import extract_images, extract_docx_photos
+from imagemap import TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS
 from tables import TABLES
 from derive import derive_keywords, normalize
 
@@ -24,6 +24,7 @@ def _finish(q, qid, images):
     # 그림자리가 있어도 그림이나 표로 채워졌으면 '준비중'이 아니다
     q["imageNeeded"] = bool(q.get("imagePlaceholders", 0)) and not images and not table
     q["imageHint"] = q.get("imageHint", "")
+    q["conditions"] = q.get("conditions", [])
     q.pop("imagePlaceholders", None)
     # 작도 문제(답이 그림 자체)는 답 단락이 없다 → UI 일관성을 위해 빈 파트 보장
     if not q["parts"]:
@@ -59,11 +60,21 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
             q["groupId"] = "g-" + key[:24]
             q["examRefs"] = []
 
+    # 워드에 내장된 실제 사진(스키머·입도분포 등)은 그대로 사용한다
+    photos = extract_docx_photos(photos_docx, os.path.join(out_dir, "images"),
+                                 DOCX_PHOTO_NUMS)
+
     for t in topics:
         t["type"] = "topic"
+        # 유형명에서 앞의 번호를 뗀 짧은 이름(문제 옆 배지에 쓴다)
+        t["shortLabel"] = t["label"].split(". ", 1)[-1]
         for q in t["questions"]:
             qid = f"{t['id']}-{q['num']}"
-            _finish(q, qid, list(TOPIC_IMAGES.get(qid, [])))
+            imgs = ([photos[q["num"]]] if q["num"] in photos
+                    else list(TOPIC_IMAGES.get(qid, [])))
+            _finish(q, qid, imgs)
+            q["topicId"] = t["id"]
+            q["topicLabel"] = t["shortLabel"]
             q["stars"] = len(q["examRefs"]) if q["examRefs"] else 1
             q["groupId"] = "g-" + normalize(q["text"])[:24]
 
@@ -75,7 +86,7 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
 def main():
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     data = build(os.path.join(base, "원본자료", "제선기능장_기출문제_회차별.docx"),
-                 os.path.join(base, "원본자료", "제선기능장_문제집_사진정리본.docx"),
+                 os.path.join(base, "원본자료", "제선기능장_문제집_사진정리본_v2.docx"),
                  os.path.join(base, "원본자료", "제선기능장.xlsx"),
                  os.path.join(base, "data"))
     out = os.path.join(base, "data", "questions.json")

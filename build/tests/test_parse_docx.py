@@ -136,3 +136,58 @@ def test_topic_header_not_confused_with_question():
     topics = parse_photos_doc(lines)
     assert topics[0]["id"] == "t03"
     assert topics[0]["questions"][0]["num"] == 13
+
+
+def test_condition_lines_kept_as_question_condition():
+    """문제와 답 사이의 조건 줄이 사라지지 않고 조건으로 보존된다."""
+    lines = [
+        "2023년 1회",
+        "1. 선철 1ton을 생산하는 데 필요한 광석량 계산",
+        "선철 1ton 중 Fe 함유량 93.0%, 연진발생량 선철 ton당 12kg",
+        "광재 중 Fe 함유량 0.5%, 철광석 중 Fe 함유량 57%",
+        "답  선철 Fe 양 + 연진 Fe 양 = ...",
+        "장입 광석량 x = 1640.17kg",
+    ]
+    q = parse_rounds_doc(lines)[0]["questions"][0]
+    assert q["conditions"] == [
+        "선철 1ton 중 Fe 함유량 93.0%, 연진발생량 선철 ton당 12kg",
+        "광재 중 Fe 함유량 0.5%, 철광석 중 Fe 함유량 57%",
+    ]
+    assert q["parts"][0]["answers"] == [
+        "선철 Fe 양 + 연진 Fe 양 = ...", "장입 광석량 x = 1640.17kg"]
+
+
+def test_v2_paren_subquestion_and_arrow_answer():
+    """새 사진정리본 형식: '(1) 라벨' 소문제 + '→ 답:' 답."""
+    lines = [
+        "01. 열풍로",
+        "문제 1.  열풍로의 형식(종류) 2가지와 각각의 특징을 쓰시오.",
+        "기출 출제: 21년 1회 · 22년 1회",
+        "(1) 내연식(Cowper·McClure식)",
+        "→ 답: 송풍온도 약 1,150℃, 연소실·축열실 한 탑 구조",
+        "(2) 외연식(Koppers·Martin식)",
+        "→ 답: 송풍온도 약 1,300℃, 연소실·축열실 분리",
+    ]
+    q = parse_photos_doc(lines)[0]["questions"][0]
+    assert [p["label"] for p in q["parts"]] == [
+        "내연식(Cowper·McClure식)", "외연식(Koppers·Martin식)"]
+    assert q["parts"][0]["answers"] == ["송풍온도 약 1,150℃, 연소실·축열실 한 탑 구조"]
+    assert q["examRefs"] == ["21-1", "22-1"]
+
+
+def test_v2_plain_answer_with_continuation_and_note():
+    """'답 ' 다음 줄들도 같은 답으로 묶이고, '(추가: …)'도 답에 남는다."""
+    lines = [
+        "01. 열풍로",
+        "문제 6.  송풍기 능력 저하 시 비상조치 3가지를 쓰시오.",
+        "답  ① 미분탄·산소부화 중지 후 노정압 하향",
+        "② 예비 송풍기 가동하여 교체운전",
+        "문제 4.  풍구로 취입되는 것 4가지를 쓰시오.",
+        "답  열풍, 산소, 중유, 미분탄",
+        "(추가: 천연가스, 코크스로 가스)",
+    ]
+    qs = parse_photos_doc(lines)[0]["questions"]
+    assert qs[0]["parts"][0]["answers"] == [
+        "① 미분탄·산소부화 중지 후 노정압 하향", "② 예비 송풍기 가동하여 교체운전"]
+    assert qs[1]["parts"][0]["answers"] == [
+        "열풍, 산소, 중유, 미분탄", "(추가: 천연가스, 코크스로 가스)"]

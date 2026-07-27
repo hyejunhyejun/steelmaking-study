@@ -1,12 +1,16 @@
 import os, io
 import openpyxl
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 # 문제 번호 판정은 워드 파서와 반드시 같은 규칙을 써야 한다.
 # (회차, 번호) 조인이 어긋나면 그림이 엉뚱한 문제에 붙는다.
 from parse_docx import MAIN_RE, SUB_RE
 
 MAX_IMG_WIDTH = 1000
+# 원본이 너무 작은 스캔은 화면에서 읽기 어려워 적당히 키운다(과도한 확대는 금지)
+MIN_DISPLAY_WIDTH = 460
+MIN_DISPLAY_HEIGHT = 260
+MAX_UPSCALE = 2.2
 ROUND_SHEETS = ["21-1", "21-2", "22-1", "22-2", "23-1", "23-2",
                 "24-1", "24-2", "25-1", "25-2"]
 
@@ -110,6 +114,16 @@ def _deskew(im):
     return im.rotate(best_angle, expand=True, fillcolor=(255, 255, 255))
 
 
+def _upscale_small(im):
+    """너무 작은 스캔을 읽기 좋은 크기로 키우고 선명화한다."""
+    f = max(MIN_DISPLAY_WIDTH / im.width, MIN_DISPLAY_HEIGHT / im.height)
+    f = min(f, MAX_UPSCALE)
+    if f <= 1.01:
+        return im
+    im = im.resize((round(im.width * f), round(im.height * f)), Image.LANCZOS)
+    return im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=110, threshold=3))
+
+
 def _straighten(im):
     """여백 트림 → 기울기 보정 → 재트림. 여백이 크면 기울기 측정이 흐려진다."""
     for _ in range(2):
@@ -138,6 +152,7 @@ def _save(raw_bytes, path, rotate=0, crop_ui=False, text_crop=None):
             im = im.crop((int(w * l), int(h * t), int(w * r), int(h * b)))
             # 지문을 떼어낸 뒤 다시 재보정(남은 그림 기준으로 기울기가 달라진다)
             im = _straighten(im)
+        im = _upscale_small(im)
         if im.width > MAX_IMG_WIDTH:
             h2 = round(im.height * MAX_IMG_WIDTH / im.width)
             im = im.resize((MAX_IMG_WIDTH, h2), Image.LANCZOS)
@@ -171,3 +186,43 @@ def extract_images(xlsx_path, out_dir):
                   ROTATE.get(key, 0), key in CROP_PHONE_UI, TEXT_CROP.get(key))
             mapping.setdefault((sheet, owner), []).append(f"images/{key}.jpg")
     return mapping
+
+
+# ---------------------------------------------------------------------------
+# 워드(사진정리본)에 내장된 실제 사진 추출
+# ---------------------------------------------------------------------------
+_A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+_R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+_Q_RE = None  # 지연 컴파일(모듈 상단 import 순서 유지)
+
+
+def extract_docx_photos(docx_path, out_dir, wanted_nums):
+    """사진정리본 워드에서 지정한 '문제 N'의 내장 사진을 저장.
+
+    반환: {문제번호: "images/파일명"} — 없는 번호는 결과에 없다.
+    """
+    import re
+    import docx as _docx
+
+    global _Q_RE
+    if _Q_RE is None:
+        _Q_RE = re.compile(r"^문제\s*(\d+)\.")
+
+    os.makedirs(out_dir, exist_ok=True)
+    doc = _docx.Document(docx_path)
+    cur, found = None, {}
+    for p in doc.paragraphs:
+        m = _Q_RE.match(p.text.strip())
+        if m:
+            cur = int(m.group(1))
+        if cur not in wanted_nums:
+            continue
+        for blip in p._p.findall(f".//{_A_NS}blip"):
+            rid = blip.get(f"{_R_NS}embed")
+            if not rid:
+                continue
+            blob = doc.part.related_parts[rid].blob
+            name = f"photo_{cur}.jpg"
+            _save(blob, os.path.join(out_dir, name))
+            found[cur] = f"images/{name}"
+    return found

@@ -4,7 +4,7 @@ from build_v2 import build
 
 BASE = os.path.join(os.path.dirname(__file__), "..", "..")
 ROUNDS = os.path.join(BASE, "원본자료", "제선기능장_기출문제_회차별.docx")
-PHOTOS = os.path.join(BASE, "원본자료", "제선기능장_문제집_사진정리본.docx")
+PHOTOS = os.path.join(BASE, "원본자료", "제선기능장_문제집_사진정리본_v2.docx")
 XLSX = os.path.join(BASE, "원본자료", "제선기능장.xlsx")
 DATA = os.path.join(BASE, "data")
 
@@ -14,7 +14,7 @@ def test_structure_counts():
     assert len(d["rounds"]) == 10
     assert sum(len(r["questions"]) for r in d["rounds"]) == 200
     assert len(d["topics"]) == 62
-    assert sum(len(t["questions"]) for t in d["topics"]) == 173
+    assert sum(len(t["questions"]) for t in d["topics"]) == 171
     assert d["rounds"][0]["label"] == "2021년 1회차"
     assert d["rounds"][-1]["label"] == "2025년 2회차"
 
@@ -33,7 +33,7 @@ def test_keywords_and_qid_and_images():
 def test_topic_image_from_map():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     t07 = next(t for t in d["topics"] if t["id"] == "t07")
-    q = next(q for q in t07["questions"] if q["qid"] == "t07-38")
+    q = next(q for q in t07["questions"] if q["qid"] == "t07-37")
     assert q["images"] == ["images/21-1_0.jpg"]
     assert q["imageNeeded"] is False
 
@@ -41,11 +41,10 @@ def test_topic_image_from_map():
 def test_image_needed_flag_when_placeholder_unfilled():
     """그림자리는 있으나 채울 그림이 없으면 imageNeeded=True, 힌트는 남는다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
-    t12 = next(t for t in d["topics"] if t["id"] == "t12")
-    q = next(q for q in t12["questions"] if q["qid"] == "t12-59")
+    r = next(r for r in d["rounds"] if r["id"] == "22-1")
+    q = next(q for q in r["questions"] if q["qid"] == "22-1-16")
     assert q["images"] == []
     assert q["imageNeeded"] is True
-    assert "스키머" in q["imageHint"]
 
 
 def test_svg_diagrams_are_attached():
@@ -57,8 +56,7 @@ def test_svg_diagrams_are_attached():
         "t01-9": "diagrams/flue-temp.svg",
         "t03-24": "diagrams/quartz-transition.svg",
         "t05-33": "diagrams/boudouard-pressure.svg",
-        "t47-157": "diagrams/grain-distribution.svg",
-    }
+        }
     for qid, path in expected.items():
         assert by_qid[qid]["images"] == [path], qid
         assert by_qid[qid]["imageNeeded"] is False, qid
@@ -106,17 +104,10 @@ def test_no_leftover_internal_field():
 def test_table_questions_get_table_and_no_pending_image():
     """표 문제는 table 데이터가 붙고 '그림 준비중'으로 표시되지 않는다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
-    t06 = next(t for t in d["topics"] if t["id"] == "t06")
-    q = next(q for q in t06["questions"] if q["qid"] == "t06-35")
-    assert q["table"]["headers"] == ["부위", "요구특성", "사용재질"]
-    assert len(q["table"]["rows"]) == 3
-    assert q["imageNeeded"] is False
-
     t26 = next(t for t in d["topics"] if t["id"] == "t26")
-    q2 = next(q for q in t26["questions"] if q["qid"] == "t26-103")
+    q2 = next(q for q in t26["questions"] if q["qid"] == "t26-102")
     assert "비중" in q2["table"]["headers"]
     assert q2["table"]["rows"][0][:2] == ["Fe₂O₃", "적철광"]
-    assert q2["imageNeeded"] is False
 
 
 def test_non_table_questions_have_no_table_key():

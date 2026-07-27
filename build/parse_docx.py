@@ -51,7 +51,7 @@ def parse_rounds_doc(lines):
         mm = MAIN_RE.match(s)
         if mm:
             q = {"num": int(mm.group(1)), "text": mm.group(2).strip(),
-                 "imagePlaceholders": 0, "parts": []}
+                 "imagePlaceholders": 0, "conditions": [], "parts": []}
             cur["questions"].append(q)
             part = None
             in_answer = False
@@ -69,6 +69,9 @@ def parse_rounds_doc(lines):
             continue
         if in_answer and part is not None:
             part["answers"].append(s)
+        elif q is not None:
+            # 문제와 첫 답 사이의 줄 = 계산 조건·보기 (버리면 문제가 성립하지 않는다)
+            q["conditions"].append(s)
     return rounds
 
 
@@ -76,6 +79,9 @@ TOPIC_RE = re.compile(r"^(\d\d)\.\s+(.+)$")
 PHOTO_Q_RE = re.compile(r"^문제\s*(\d+)\.\s*(.+)$", re.S)
 EXAM_PREFIX = "기출 출제:"
 EXAM_REF_RE = re.compile(r"(\d\d)년\s*(\d)회")
+# 새 정리본 형식: 소문제는 '(1) 라벨', 답은 '→ 답: 내용'
+PAREN_SUB_RE = re.compile(r"^\((\d+)\)\s*(.+)$", re.S)
+ARROW_ANSWER_RE = re.compile(r"^→\s*답\s*[:：]?\s*(.*)$", re.S)
 
 
 def _exam_refs(text):
@@ -131,6 +137,22 @@ def parse_photos_doc(lines):
                 hint = s.split("］", 1)[-1].strip()
                 if hint:
                     q["imageHint"] = hint
+            in_answer = False
+            continue
+        ma = ARROW_ANSWER_RE.match(s)
+        if ma and q is not None:
+            if part is None:
+                part = {"label": "", "answers": []}
+                q["parts"].append(part)
+            body = ma.group(1).strip()
+            if body:
+                part["answers"].append(body)
+            in_answer = True
+            continue
+        mp = PAREN_SUB_RE.match(s)
+        if mp and q is not None:
+            part = {"label": mp.group(2).strip(), "answers": []}
+            q["parts"].append(part)
             in_answer = False
             continue
         if s.startswith(ANSWER_PREFIX):

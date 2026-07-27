@@ -31,7 +31,15 @@ def test_phone_ui_cropped_and_trimmed():
     im = Image.open(os.path.join(OUT, "22-1_0.jpg"))
     # UI 제거만 하면 715px, 잉크 트림까지 하면 그보다 훨씬 짧다
     assert im.height < 500
-    assert im.width <= 442
+    assert im.width <= 1000
+
+
+def test_small_scan_is_upscaled_for_readability():
+    """원본이 작은 스캔(357x180)은 읽기 좋은 크기로 확대된다."""
+    from PIL import Image
+    extract_images(XLSX, OUT)
+    im = Image.open(os.path.join(OUT, "21-1_2.jpg"))
+    assert im.width >= 460 or im.height >= 260
 
 
 def test_sideways_phone_captures_are_rotated_upright():

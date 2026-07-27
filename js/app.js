@@ -3,7 +3,7 @@ import {
   renderQuestionCard, imageBlock, tableBlock, questionTableBlock, conditionBlock,
   questionHead, addWrongButton,
 } from "./render.js";
-import { matchKeywords } from "./grading.js";
+import { matchKeywords, scoreOf } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
@@ -33,6 +33,29 @@ function inTypingField(e) {
 
 function shortcutHint(text) {
   return `<p class="shortcut-hint">⌨ ${text}</p>`;
+}
+
+/* ---------------- 채점 결과 표시 ---------------- */
+
+function shorten(s, n = 26) {
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
+
+// 맞춘 것 ✓ / 부분 △ / 놓친 것 ✗ — 놓친 핵심어를 함께 보여준다
+function renderScore(res) {
+  if (!res.length) return "<i>그림·표로 답하는 문제입니다</i>";
+  const s = scoreOf(res);
+  const items = res.map((r) => {
+    const cls = r.hit ? "hit" : r.partial ? "part-hit" : "miss";
+    const mark = r.hit ? "✓" : r.partial ? "△" : "✗";
+    const detail = r.terms.length > 1 && !r.hit
+      ? ` <small>(놓침: ${r.missing.join(", ")})</small>`
+      : "";
+    return `<div class="kw-item ${cls}">${mark} ${shorten(r.keyword)}${detail}</div>`;
+  }).join("");
+  const partTxt = s.partial ? `, 부분 ${s.partial}개` : "";
+  return `<div class="kw-summary">채점 <b>${s.percent}%</b>
+      <small>(${s.total}개 중 정답 ${s.hit}개${partTxt})</small></div>${items}`;
 }
 
 /* ---------------- 저장소 (문제 번호 체계가 바뀌면 초기화) ---------------- */
@@ -65,6 +88,16 @@ function setupTheme() {
     }
     paint();
   });
+  paint();
+}
+
+/* ---------------- 단축키 참고 패널 ---------------- */
+
+function setupShortcutPanel() {
+  const btn = document.getElementById("shortcut-toggle");
+  const panel = document.getElementById("shortcut-panel");
+  const paint = () => btn.setAttribute("aria-expanded", String(!panel.hidden));
+  btn.addEventListener("click", () => { panel.hidden = !panel.hidden; paint(); });
   paint();
 }
 
@@ -266,11 +299,7 @@ function startTest(collection, backFn) {
     q.parts.forEach((p, pi) => {
       const ta = app.querySelector(`textarea[data-pi="${pi}"]`);
       const res = matchKeywords(ta ? ta.value : "", p.keywords || []);
-      const hits = res.filter((r) => r.hit).length;
-      app.querySelector(`.kw[data-pi="${pi}"]`).innerHTML = res.length
-        ? `핵심어 ${res.length}개 중 <b>${hits}</b>개 포함 ` +
-          res.map((r) => `<span class="${r.hit ? "hit" : "miss"}">${r.keyword}${r.hit ? "✓" : "✗"}</span>`).join(" ")
-        : `<i>그림·표로 답하는 문제입니다</i>`;
+      app.querySelector(`.kw[data-pi="${pi}"]`).innerHTML = renderScore(res);
     });
     const reveal = app.querySelector(".reveal");
     reveal.hidden = false;
@@ -346,12 +375,13 @@ function grade(collection) {
     q.parts.forEach((p, pi) => {
       const ta = app.querySelector(`textarea[data-qi="${qi}"][data-pi="${pi}"]`);
       const res = matchKeywords(ta ? ta.value : "", p.keywords || []);
-      qTot += res.length; qHit += res.filter((r) => r.hit).length;
+      const s = scoreOf(res);
+      qTot += s.total; qHit += s.hit + s.partial * 0.5;
     });
     totalKw += qTot; hitKw += qHit;
     const model = q.parts.map((p) =>
       `${p.label ? renderFormula(p.label) + ": " : ""}${p.answers.map(renderFormula).join(", ")}`).join(" / ");
-    return `<div class="rline"><b>${q.displayNum ?? q.num}.</b> 키워드 ${qHit}/${qTot}
+    return `<div class="rline"><b>${q.displayNum ?? q.num}.</b> 채점 ${Math.round(qHit * 10) / 10}/${qTot}
       <div class="model">${model}${tableBlock(q)}</div>
       <div class="mark-row" data-qid="${q.qid}">
         <button class="mini o">O 맞음</button><button class="mini x">X 틀림</button>
@@ -360,7 +390,7 @@ function grade(collection) {
   }).join("");
   const pct = totalKw ? Math.round((hitKw / totalKw) * 100) : 0;
   const result = app.querySelector("#result");
-  result.innerHTML = `<h3>채점 결과: 키워드 ${hitKw}/${totalKw} (${pct}%)</h3>
+  result.innerHTML = `<h3>채점 결과: ${Math.round(hitKw * 10) / 10} / ${totalKw} (${pct}%)</h3>
     <p class="hint-line">문제별로 O/X를 누르면 틀린 문제가 오답노트에 저장됩니다.</p>${lines}`;
   result.querySelectorAll(".mark-row").forEach((row) => {
     const qid = row.dataset.qid;
@@ -452,5 +482,6 @@ app.addEventListener("click", (e) => {
 
 resetStorageIfStale();
 setupTheme();
+setupShortcutPanel();
 loadData().then((d) => { DATA = d; home(); })
   .catch((e) => (app.textContent = "데이터를 불러오지 못했습니다: " + e.message));

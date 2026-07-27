@@ -190,3 +190,25 @@ button.reveal-part:hover { border-color: var(--accent); color: var(--accent); }
 
 /* 단축키 안내 */
 .shortcut-hint { color: var(--muted); font-size: .85rem; margin: .5rem 0; }
+
+/* 채점 결과 */
+.kw-summary { margin-bottom: .25rem; color: var(--fg); }
+.kw-item { font-size: .88rem; margin: .12rem 0; }
+.kw-item.hit { color: var(--accent); }
+.kw-item.part-hit { color: var(--star); }
+.kw-item.miss { color: var(--danger); }
+.kw-item small { color: var(--muted); }
+
+/* 단축키 참고 패널 */
+#shortcut-toggle {
+  border: 1px solid var(--border); background: var(--card); color: var(--fg);
+  border-radius: 8px; padding: .35rem .6rem; cursor: pointer; font-size: .9rem;
+}
+#shortcut-panel {
+  max-width: 900px; margin: .5rem auto 0; padding: .7rem .9rem;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--card);
+}
+#shortcut-panel h3 { margin: 0 0 .4rem; font-size: .95rem; }
+#shortcut-panel dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem .8rem; margin: 0; }
+#shortcut-panel dt { font-family: ui-monospace, monospace; color: var(--accent); white-space: nowrap; }
+#shortcut-panel dd { margin: 0; color: var(--muted); font-size: .9rem; }

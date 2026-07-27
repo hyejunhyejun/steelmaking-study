@@ -18,8 +18,18 @@
 <body>
   <header>
     <h1>제선기능장 실기 학습</h1>
+    <button id="shortcut-toggle" type="button" aria-expanded="false">⌨ 단축키</button>
     <button id="theme-toggle" type="button" aria-label="다크모드 전환">🌙 다크</button>
   </header>
+  <section id="shortcut-panel" hidden>
+    <h3>키보드 단축키</h3>
+    <dl>
+      <dt>Ctrl + Enter</dt><dd>테스트: 채점 → 한 번 더 누르면 다음 문제 / 시험: 제출하고 채점</dd>
+      <dt>Alt + ← / →</dt><dd>이전·다음 문제 (답을 입력하는 중에도 동작)</dd>
+      <dt>← / →</dt><dd>이전·다음 문제 (입력창 밖에 있을 때)</dd>
+      <dt>클릭</dt><dd>그림을 누르면 원본 크기로 확대·축소</dd>
+    </dl>
+  </section>
   <main id="app">로딩 중…</main>
   <script type="module" src="js/app.js"></script>
 </body>

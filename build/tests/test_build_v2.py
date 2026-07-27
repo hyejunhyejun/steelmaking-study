@@ -27,7 +27,8 @@ def test_keywords_and_qid_and_images():
     assert q4["images"] == ["images/21-1_0.jpg"]
     assert q4["imageNeeded"] is False
     q1 = next(q for q in r["questions"] if q["num"] == 1)
-    assert "회선철" in q1["parts"][0]["keywords"]
+    labels = [k["label"] for k in q1["parts"][0]["keywords"]]
+    assert "회선철" in labels
 
 
 def test_topic_image_from_map():
@@ -149,3 +150,20 @@ def test_ore_calculation_typo_fixed():
     text = " ".join(a for p in q["parts"] for a in p["answers"])
     assert "0.607" in text and "0.067" not in text
     assert "1,616.22kg" in text
+
+
+def test_long_answers_are_split_into_core_terms():
+    """긴 서술형 답도 채점 가능한 핵심어로 쪼개진다(문장 통째 매칭 금지)."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    units = [k for c in d["rounds"] + d["topics"] for q in c["questions"]
+             for p in q["parts"] for k in p["keywords"]]
+    import re
+    assert units, "채점 단위가 있어야 한다"
+    # 한글로만 된 핵심어는 짧아야 한다(문장이 통째로 남으면 못 맞춘다).
+    # 반응식·고유명사(영문·숫자 포함)는 통째로 맞히는 게 맞으므로 제외한다.
+    korean_only = [t for u in units for t in u["terms"]
+                   if not re.search(r"[A-Za-z0-9₀-₉→+]", t)]
+    assert korean_only
+    assert max(len(t) for t in korean_only) <= 12
+    # 한 단위가 요구하는 핵심어는 8개를 넘지 않는다
+    assert max(len(u["terms"]) for u in units) <= 8

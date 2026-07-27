@@ -7,8 +7,19 @@ function examBadge(q) {
   return `<span class="exam-badge">기출 ${q.examRefs.join("·")}</span>`;
 }
 
+function topicBadge(q) {
+  return q.topicLabel ? `<span class="topic-badge">${q.topicLabel}</span>` : "";
+}
+
 function ownerBadge(q) {
   return q.ownerLabel ? `<span class="src">[${q.ownerLabel}]</span>` : "";
+}
+
+// 문제에 딸린 계산 조건·보기(없으면 빈 문자열)
+export function conditionBlock(q) {
+  if (!q.conditions || q.conditions.length === 0) return "";
+  return `<div class="conditions">${q.conditions
+    .map((c) => `<div>${renderFormula(c)}</div>`).join("")}</div>`;
 }
 
 // 그림이 있으면 표시, 그림자리가 있는데 못 채웠으면 '그림 준비중' 박스
@@ -34,7 +45,19 @@ export function tableBlock(q) {
     </table>${note ? `<p class="tnote">${renderFormula(note)}</p>` : ""}</div>`;
 }
 
-export function renderQuestionCard(q, { showAnswers }) {
+// 문제 머리(번호·본문·배지). displayNum이 있으면 그 번호로 표시(랜덤 모드 1~20)
+export function questionHead(q) {
+  return `<div class="qhead"><span class="qnum">${q.displayNum ?? q.num}.</span>
+      <span class="qtext">${renderFormula(q.text)}</span>
+      ${ownerBadge(q)}${topicBadge(q)}${examBadge(q)}<span class="stars">${starText(q.stars || 1)}</span></div>`;
+}
+
+export function addWrongButton(q, saved) {
+  return `<button class="add-wrong${saved ? " done" : ""}" data-qid="${q.qid}">
+      ${saved ? "✓ 오답노트에 있음" : "＋ 오답노트에 추가"}</button>`;
+}
+
+export function renderQuestionCard(q, { showAnswers, wrongIds = [] }) {
   const el = document.createElement("article");
   el.className = "qcard";
   const parts = q.parts.map((p) => {
@@ -44,10 +67,8 @@ export function renderQuestionCard(q, { showAnswers }) {
       : "";
     return `<div class="part">${label}${ans}</div>`;
   }).join("");
-  el.innerHTML = `
-    <div class="qhead"><span class="qnum">${q.num}.</span>
-      <span class="qtext">${renderFormula(q.text)}</span>
-      ${ownerBadge(q)}${examBadge(q)}<span class="stars">${starText(q.stars || 1)}</span></div>
-    ${imageBlock(q)}${showAnswers ? tableBlock(q) : ""}${parts}`;
+  el.innerHTML = questionHead(q) + conditionBlock(q) + imageBlock(q) +
+    (showAnswers ? tableBlock(q) : "") + parts +
+    addWrongButton(q, wrongIds.includes(q.qid));
   return el;
 }

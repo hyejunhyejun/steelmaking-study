@@ -8,7 +8,7 @@ from images import extract_images, extract_docx_photos, extract_note_figures
 from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
                       NO_IMAGE_NEEDED)
 from tables import TABLES
-from answers import ANSWER_OVERRIDES, ANSWER_UNIFY
+from answers import ANSWER_OVERRIDES, ANSWER_UNIFY, QUESTION_TEXT_FIXES
 from derive import derive_keywords, normalize
 
 
@@ -19,6 +19,9 @@ def _lines(path):
 def _finish(q, qid, images):
     """qid·그림·표·키워드를 채우고 내부 필드를 정리한다."""
     q["qid"] = qid
+    # 문제 문구가 잘못 적힌 문항은 바로잡는다
+    if qid in QUESTION_TEXT_FIXES:
+        q["text"] = QUESTION_TEXT_FIXES[qid]
     q["images"] = images
     table = TABLES.get(qid)
     if table:

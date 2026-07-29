@@ -167,3 +167,14 @@ def test_long_answers_are_split_into_core_terms():
     assert max(len(t) for t in korean_only) <= 12
     # 한 단위가 요구하는 핵심어는 8개를 넘지 않는다
     assert max(len(u["terms"]) for u in units) <= 8
+
+
+def test_fuel_ratio_question_and_answer_agree():
+    """24-1-9: 문제 수치(회분7·휘발분5·수분3)와 답(85%, 17)이 일치한다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    q = next(q for r in d["rounds"] for q in r["questions"] if q["qid"] == "24-1-9")
+    assert "휘발분 5%" in q["text"] and "수분 3%" in q["text"]
+    text = " ".join(a for p in q["parts"] for a in p["answers"])
+    assert "= 85%" in text
+    assert "85% / 5% = 17" in text
+    assert "29.33" not in text

@@ -26,3 +26,9 @@ export function allQuestions(data) {
 export function findByQid(data, qid) {
   return allQuestions(data).find((q) => q.qid === qid);
 }
+
+export async function loadMnemonics() {
+  const res = await fetch("data/mnemonics.json");
+  if (!res.ok) throw new Error("mnemonics.json 로드 실패");
+  return res.json();
+}

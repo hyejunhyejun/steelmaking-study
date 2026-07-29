@@ -1,4 +1,4 @@
-import { loadData, findByQid } from "./data.js";
+import { loadData, loadMnemonics, findByQid } from "./data.js";
 import {
   renderQuestionCard, imageBlock, tableBlock, questionTableBlock, conditionBlock,
   questionHead, addWrongButton,
@@ -129,11 +129,13 @@ function home() {
       <button class="round alt" data-go="topics">이외 기출문제<br><small>${topicQCount}문제</small></button>
       <button class="round alt" data-go="random">랜덤 ${RANDOM_COUNT}문제<br><small>전체에서 무작위</small></button>
       <button class="round wrong" data-go="wrong">오답노트<br><small>${wrongCount}문제</small></button>
+      <button class="round alt" data-go="mnemonic">📌 암기법<br><small>두문자로 외우기</small></button>
     </div>`;
   app.querySelectorAll("button.round[data-id]").forEach((b) =>
     b.addEventListener("click", () => renderModeSelect(DATA.rounds.find((r) => r.id === b.dataset.id)))
   );
-  const go = { topics: startTopicsAll, random: startRandom, wrong: renderWrongNote };
+  const go = { topics: startTopicsAll, random: startRandom, wrong: renderWrongNote,
+               mnemonic: renderMnemonics };
   app.querySelectorAll("button.round[data-go]").forEach((b) =>
     b.addEventListener("click", () => go[b.dataset.go]())
   );
@@ -450,6 +452,61 @@ function renderWrongNote() {
       renderWrongNote();
     }
   });
+}
+
+/* ---------------- 암기법 ---------------- */
+
+let MNEMONICS = null;
+
+function mnemonicEntry(e) {
+  const rounds = e.rounds.length
+    ? `<span class="mn-rounds">기출 ${e.rounds.join(" · ")}</span>`
+    : `<span class="mn-rounds none">기출 없음 · 보충</span>`;
+  const flags = [e.reordered ? "🔀 순서 바꿈" : "", e.origin ? "원본 두문자" : ""]
+    .filter(Boolean).map((f) => `<span class="mn-flag">${f}</span>`).join(" ");
+  const items = e.items.map(([k, v]) =>
+    `<div class="mn-key">${k}</div><div class="mn-val">${renderFormula(v)}</div>`).join("");
+  return `<article class="mn-entry">
+      <div class="mn-head"><span class="mn-title">${e.title}</span>${rounds}${flags}</div>
+      <div class="mn-phrase">${e.emoji ? e.emoji + " " : ""}${e.phrase}</div>
+      ${e.read ? `<p class="mn-read">${e.read}</p>` : ""}
+      <div class="mn-items">${items}</div>
+    </article>`;
+}
+
+async function renderMnemonics() {
+  keyHandler = null;
+  if (!MNEMONICS) {
+    app.innerHTML = "암기법 불러오는 중…";
+    try {
+      MNEMONICS = await loadMnemonics();
+    } catch (err) {
+      app.innerHTML = `<button class="back">← 홈</button><p>암기법을 불러오지 못했습니다: ${err.message}</p>`;
+      bindBacks(home);
+      return;
+    }
+  }
+  const sections = MNEMONICS.sections.map((s) =>
+    `<h2>${s.name}</h2>${s.entries.map(mnemonicEntry).join("")}`).join("");
+  const pairs = MNEMONICS.pairs.map((p) =>
+    `<tr><td><b>${p.topic}</b></td><td>${p.left}</td><td>${p.right}</td></tr>`).join("");
+  const numbers = MNEMONICS.numbers.map((n) =>
+    `<tr><td>${renderFormula(n.name)}</td><td><b>${renderFormula(n.value)}</b></td></tr>`).join("");
+  app.innerHTML = `
+    <button class="back">← 홈</button>
+    <h2>📌 두문자 암기법 <small>${MNEMONICS.sections.reduce((a, s) => a + s.entries.length, 0)}개</small></h2>
+    <p class="hint-line">순서를 바꿔 한 문장으로 읽히게 만든 암기법입니다. 각 항목에 출제 회차를 표시했습니다.</p>
+    ${sections}
+    <h2>헷갈리는 짝 — 반대로 외우기</h2>
+    <div class="table-wrap"><table class="qtable">
+      <thead><tr><th>구분</th><th>한쪽</th><th>반대쪽</th></tr></thead>
+      <tbody>${pairs}</tbody></table></div>
+    <h2>숫자로 외우는 것</h2>
+    <div class="table-wrap"><table class="qtable">
+      <thead><tr><th>항목</th><th>값</th></tr></thead>
+      <tbody>${numbers}</tbody></table></div>
+    ${bottomBack("← 홈")}`;
+  bindBacks(home);
 }
 
 /* ---------------- 전역 클릭 처리 (그림 확대 · 오답 담기) ---------------- */

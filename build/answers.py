@@ -134,7 +134,26 @@ _FUEL_RATIO_24_1 = [
 ]
 
 
+# 문제가 4성분(CaO·MgO·SiO₂·Al₂O₃)을 주는데 답에 MgO·Al₂O₃가 없어 유형본 기준으로 보완
+_SINTER_FLUX = [
+    {"label": "소결광 생산성 증가시키는 성분", "answers": ["CaO, SiO₂"]},
+    {"label": "소결광 생산성 저하시키는 성분", "answers": ["Al₂O₃, MgO"]},
+    {"label": "소결광 강도 증가시키는 성분", "answers": ["CaO, SiO₂"]},
+]
+
+# 레이스웨이 연소 반응 — N₂는 반응하지 않고 그대로 지나가므로 식 양변에 함께 표기
+_RACEWAY = [
+    {"label": "", "answers": [
+        "C + O₂ + N₂ → CO₂ + N₂ + 97kcal",
+        "CO₂ + C → 2CO - 38.2kcal",
+        "H₂O + C → H₂ + CO - 28.4kcal",
+    ]},
+]
+
+
 ANSWER_UNIFY = {
+    "24-1-16": _SINTER_FLUX,
+    "25-2-8": _RACEWAY,
     # 코크스 고정탄소·연료비 계산 (문제 수치와 답이 어긋나 있던 것을 바로잡음)
     "24-1-9": _FUEL_RATIO_24_1,
     # 미분탄(PCI) 취입법 장·단점

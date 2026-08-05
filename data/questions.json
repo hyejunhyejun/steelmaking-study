@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-07-29",
+    "generatedAt": "2026-08-05",
     "source": "docx v2"
   },
   "rounds": [
@@ -9586,6 +9586,26 @@
               ]
             },
             {
+              "label": "소결광 생산성 저하시키는 성분",
+              "answers": [
+                "Al₂O₃, MgO"
+              ],
+              "keywords": [
+                {
+                  "label": "Al₂O₃",
+                  "terms": [
+                    "Al₂O₃"
+                  ]
+                },
+                {
+                  "label": "MgO",
+                  "terms": [
+                    "MgO"
+                  ]
+                }
+              ]
+            },
+            {
               "label": "소결광 강도 증가시키는 성분",
               "answers": [
                 "CaO, SiO₂"
@@ -9610,6 +9630,7 @@
           "images": [],
           "imageNeeded": false,
           "imageHint": "",
+          "unified": true,
           "stars": 1,
           "groupId": "g-소결조업에서다음조재성분에대한물음에답하시오ca",
           "examRefs": []
@@ -13015,20 +13036,18 @@
             {
               "label": "",
               "answers": [
-                "C + O₂ → CO₂ + 97kcal (N₂ 불활성 통과)",
+                "C + O₂ + N₂ → CO₂ + N₂ + 97kcal",
                 "CO₂ + C → 2CO - 38.2kcal",
                 "H₂O + C → H₂ + CO - 28.4kcal"
               ],
               "keywords": [
                 {
-                  "label": "C + O₂ → CO₂ + 97kcal (N₂ 불활성 통과)",
+                  "label": "C + O₂ + N₂ → CO₂ + N₂ + 97kcal",
                   "terms": [
                     "O₂",
-                    "CO₂",
-                    "97kcal",
                     "N₂",
-                    "불활성",
-                    "통과"
+                    "CO₂",
+                    "97kcal"
                   ]
                 },
                 {
@@ -13055,6 +13074,7 @@
           "images": [],
           "imageNeeded": false,
           "imageHint": "",
+          "unified": true,
           "stars": 1,
           "groupId": "g-raceway에서연소시n₂coh₂가스의반응식",
           "examRefs": []

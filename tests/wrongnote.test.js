@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addWrong, removeWrong, listWrong, clearWrong } from "../js/wrongnote.js";
+import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode } from "../js/wrongnote.js";
 
 function fakeStore() {
   const m = new Map();
@@ -49,4 +49,16 @@ test("초기화하면 전부 비워진다", () => {
 
 test("저장된 값이 없으면 빈 배열", () => {
   assert.deepEqual(listWrong(fakeStore()), []);
+});
+
+test("코드로 가져오면 기존 것과 합쳐진다(덮어쓰지 않음)", () => {
+  const s = fakeStore();
+  addWrong(s, "21-1-4");
+  mergeWrong(s, ["21-1-4", "t12-58"]);
+  assert.deepEqual(listWrong(s), ["21-1-4", "t12-58"]);
+});
+
+test("링크·쉼표·공백 어떤 형태로 붙여넣어도 읽는다", () => {
+  assert.deepEqual(parseWrongCode("https://x.io/a/#w=21-1-4,t12-58"), ["21-1-4", "t12-58"]);
+  assert.deepEqual(parseWrongCode(" 21-1-4  t12-58 "), ["21-1-4", "t12-58"]);
 });

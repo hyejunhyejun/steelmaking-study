@@ -7,7 +7,7 @@ import { matchKeywords, scoreOf } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
-import { addWrong, removeWrong, listWrong, clearWrong } from "./wrongnote.js";
+import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode } from "./wrongnote.js";
 
 const app = document.getElementById("app");
 let DATA = null;
@@ -431,6 +431,15 @@ function renderWrongNote() {
   app.innerHTML = `
     <button class="back">← 홈</button>
     <h2>오답노트 <small>${questions.length}문제</small></h2>
+    <div class="controls" style="margin:.4rem 0 .8rem">
+      <button id="copy-link">🔗 다른 기기로 옮기기(링크 복사)</button>
+      <button id="show-import">📥 가져오기</button>
+    </div>
+    <div id="sync-box" hidden>
+      <p class="hint-line">다른 기기에서 복사한 링크나 코드를 붙여넣으세요. 기존 목록에 <b>합쳐집니다</b>.</p>
+      <textarea class="ans" id="sync-input" rows="2" placeholder="여기에 붙여넣기"></textarea>
+      <button id="do-import">합치기</button>
+    </div>
     ${questions.length
       ? `<button class="danger" id="clear">오답노트 초기화</button>
          <div class="mode-grid">
@@ -441,6 +450,23 @@ function renderWrongNote() {
          문제 아래 <b>＋ 오답노트에 추가</b> 버튼을 누르면 여기에 쌓입니다.</p>`}
     ${bottomBack("← 홈")}`;
   bindBacks(home);
+  app.querySelector("#copy-link").addEventListener("click", async (e) => {
+    const link = location.origin + location.pathname + "#w=" + qids.join(",");
+    try {
+      await navigator.clipboard.writeText(link);
+      e.target.textContent = "✓ 복사됨 — 다른 기기에서 열기";
+    } catch {
+      prompt("이 링크를 복사해서 다른 기기에서 여세요", link);
+    }
+  });
+  const box = app.querySelector("#sync-box");
+  app.querySelector("#show-import").addEventListener("click", () => { box.hidden = !box.hidden; });
+  app.querySelector("#do-import").addEventListener("click", () => {
+    const added = parseWrongCode(app.querySelector("#sync-input").value);
+    if (!added.length) return;
+    mergeWrong(localStorage, added);
+    renderWrongNote();
+  });
   if (!questions.length) return;
   app.querySelector('[data-mode="practice"]')
     .addEventListener("click", () => startPractice(collection, renderWrongNote));
@@ -538,6 +564,11 @@ app.addEventListener("click", (e) => {
 /* ---------------- 시작 ---------------- */
 
 resetStorageIfStale();
+// 다른 기기에서 보낸 오답노트 링크(#w=...)로 들어오면 합쳐 준다
+if (location.hash.startsWith("#w=")) {
+  mergeWrong(localStorage, parseWrongCode(location.hash));
+  history.replaceState(null, "", location.pathname);
+}
 setupTheme();
 setupShortcutPanel();
 loadData().then((d) => { DATA = d; home(); })

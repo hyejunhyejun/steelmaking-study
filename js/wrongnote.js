@@ -22,3 +22,16 @@ export function removeWrong(store, qid) {
 export function clearWrong(store) {
   store.removeItem(KEY);
 }
+
+// 기기 간 이동용: 목록을 링크/코드로 주고받는다(서버가 없으므로)
+export function mergeWrong(store, qids) {
+  const list = listWrong(store);
+  for (const q of qids) if (q && !list.includes(q)) list.push(q);
+  store.setItem(KEY, JSON.stringify(list));
+  return list;
+}
+
+export function parseWrongCode(text) {
+  return String(text).trim().replace(/^.*#w=/, "")
+    .split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
+}

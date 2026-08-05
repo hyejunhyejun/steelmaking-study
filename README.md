@@ -25,6 +25,12 @@
 원본은 `build/mnemonics.py` 하나이며, `python build/gen_mnemonics.py`로
 `암기법.md`와 `data/mnemonics.json`을 함께 생성합니다.
 
+## 오답노트 기기 간 동기화
+
+비공개 Gist 한 개로 폰·집·회사 PC가 같은 오답노트를 본다.
+GitHub → Settings → Developer settings → Tokens (classic)에서 `gist` 권한만 준 토큰을 만들어
+오답노트 화면에서 기기마다 한 번 붙여넣으면 끝. 토큰은 그 브라우저에만 저장된다.
+
 ## 로컬 실행
 
 `python -m http.server 8000` 실행 후 http://localhost:8000/ 접속.

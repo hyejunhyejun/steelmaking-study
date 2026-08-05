@@ -8,6 +8,7 @@ import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
 import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode } from "./wrongnote.js";
+import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
 let DATA = null;
@@ -432,8 +433,19 @@ function renderWrongNote() {
     <button class="back">← 홈</button>
     <h2>오답노트 <small>${questions.length}문제</small></h2>
     <div class="controls" style="margin:.4rem 0 .8rem">
-      <button id="copy-link">🔗 다른 기기로 옮기기(링크 복사)</button>
+      ${isLinked(localStorage)
+        ? `<button id="sync-now">☁️ 지금 동기화</button><button id="unlink">연결 해제</button>`
+        : `<button id="show-link">☁️ 기기 간 자동 동기화 연결</button>`}
+      <button id="copy-link">🔗 링크 복사</button>
       <button id="show-import">📥 가져오기</button>
+      <span id="sync-state" class="mark-state"></span>
+    </div>
+    <div id="link-box" hidden>
+      <p class="hint-line">GitHub → Settings → Developer settings → <b>Tokens (classic)</b>에서
+        <b>gist</b> 권한만 체크해 토큰을 만들어 붙여넣으세요.
+        토큰은 이 브라우저에만 저장되고, 비공개 Gist 하나에 오답노트가 보관됩니다.</p>
+      <textarea class="ans" id="token-input" rows="1" placeholder="ghp_..."></textarea>
+      <button id="do-link">연결하기</button>
     </div>
     <div id="sync-box" hidden>
       <p class="hint-line">다른 기기에서 복사한 링크나 코드를 붙여넣으세요. 기존 목록에 <b>합쳐집니다</b>.</p>
@@ -450,6 +462,22 @@ function renderWrongNote() {
          문제 아래 <b>＋ 오답노트에 추가</b> 버튼을 누르면 여기에 쌓입니다.</p>`}
     ${bottomBack("← 홈")}`;
   bindBacks(home);
+  const state = app.querySelector("#sync-state");
+  const run = async (opt, msg) => {
+    state.textContent = "동기화 중…";
+    try { await syncNow(opt); state.textContent = msg; renderWrongNote(); }
+    catch (err) { state.textContent = "실패: " + err.message; }
+  };
+  app.querySelector("#sync-now")?.addEventListener("click", () => run({}, "동기화 완료"));
+  app.querySelector("#unlink")?.addEventListener("click", () => { unlink(localStorage); renderWrongNote(); });
+  const linkBox = app.querySelector("#link-box");
+  app.querySelector("#show-link")?.addEventListener("click", () => { linkBox.hidden = !linkBox.hidden; });
+  app.querySelector("#do-link")?.addEventListener("click", () => {
+    const t = app.querySelector("#token-input").value.trim();
+    if (!t) return;
+    setToken(localStorage, t);
+    run({}, "연결됨 · 동기화 완료");
+  });
   app.querySelector("#copy-link").addEventListener("click", async (e) => {
     const link = location.origin + location.pathname + "#w=" + qids.join(",");
     try {
@@ -475,9 +503,20 @@ function renderWrongNote() {
   app.querySelector("#clear").addEventListener("click", () => {
     if (confirm("오답노트를 모두 비웁니다. 계속할까요?")) {
       clearWrong(localStorage);
+      syncNow({ replace: true }).catch(() => {});
       renderWrongNote();
     }
   });
+}
+
+/* ---------------- 오답노트 기기 간 동기화 (GitHub Gist) ---------------- */
+
+// 지운 것도 반영하려면 replace=true로 로컬 목록을 그대로 올린다
+async function syncNow({ replace = false } = {}) {
+  if (!isLinked(localStorage)) return null;
+  const merged = await gistSync(localStorage, listWrong(localStorage), { replace });
+  if (merged) localStorage.setItem("jeseon:wrongnote", JSON.stringify(merged));
+  return merged;
 }
 
 /* ---------------- 암기법 ---------------- */
@@ -571,5 +610,10 @@ if (location.hash.startsWith("#w=")) {
 }
 setupTheme();
 setupShortcutPanel();
-loadData().then((d) => { DATA = d; home(); })
+loadData().then((d) => {
+  DATA = d;
+  home();
+  // 연결돼 있으면 조용히 맞춘 뒤 개수만 갱신
+  syncNow().then((m) => { if (m) home(); }).catch(() => {});
+})
   .catch((e) => (app.textContent = "데이터를 불러오지 못했습니다: " + e.message));

@@ -37,7 +37,8 @@ export function clearWrong(store) {
 // 기기 간 이동용: 목록을 링크/코드로 주고받는다(서버가 없으므로)
 export function mergeWrong(store, qids) {
   const list = listWrong(store);
-  for (const q of qids) if (q && !list.includes(q)) list.push(q);
+  const gone = listRemoved(store);   // 내가 지운 건 다시 들어오지 않게
+  for (const q of qids) if (q && !list.includes(q) && !gone.includes(q)) list.push(q);
   store.setItem(KEY, JSON.stringify(list));
   return list;
 }

@@ -21,6 +21,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
+const APP_VERSION = "2026-07-28a";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -432,7 +433,7 @@ function renderWrongNote() {
   const collection = { id: "wrongnote", label: "오답노트", type: "wrong", questions };
   app.innerHTML = `
     <button class="back">← 홈</button>
-    <h2>오답노트 <small>${questions.length}문제</small></h2>
+    <h2>오답노트 <small>${questions.length}문제 · v${APP_VERSION}</small></h2>
     <div class="controls" style="margin:.4rem 0 .8rem">
       ${isLinked(localStorage)
         ? `<button id="sync-now">☁️ 지금 동기화</button><button id="unlink">연결 해제</button>`

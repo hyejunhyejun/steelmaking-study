@@ -62,3 +62,11 @@ test("링크·쉼표·공백 어떤 형태로 붙여넣어도 읽는다", () => 
   assert.deepEqual(parseWrongCode("https://x.io/a/#w=21-1-4,t12-58"), ["21-1-4", "t12-58"]);
   assert.deepEqual(parseWrongCode(" 21-1-4  t12-58 "), ["21-1-4", "t12-58"]);
 });
+
+test("내가 지운 문제는 링크로 다시 들어와도 되살아나지 않는다", () => {
+  const s = fakeStore();
+  addWrong(s, "21-1-1");
+  removeWrong(s, "21-1-1");
+  mergeWrong(s, ["21-1-1", "21-1-2"]);   // 예전 링크를 다시 열었을 때
+  assert.deepEqual(listWrong(s), ["21-1-2"]);
+});

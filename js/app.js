@@ -7,7 +7,7 @@ import { matchKeywords, scoreOf } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
-import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode } from "./wrongnote.js";
+import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode } from "./wrongnote.js";
 import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
@@ -317,6 +317,7 @@ function startTest(collection, backFn) {
     marks[q.qid] = ok;
     if (ok) removeWrong(localStorage, q.qid);
     else addWrong(localStorage, q.qid);
+    noteChanged();
     if (i + 1 >= collection.questions.length) {
       persist();
       return renderTestDone(collection, marks, backFn);
@@ -399,10 +400,10 @@ function grade(collection) {
     const qid = row.dataset.qid;
     const state = row.querySelector(".mark-state");
     row.querySelector(".o").addEventListener("click", () => {
-      removeWrong(localStorage, qid); state.textContent = "맞음 처리";
+      removeWrong(localStorage, qid); noteChanged(); state.textContent = "맞음 처리";
     });
     row.querySelector(".x").addEventListener("click", () => {
-      addWrong(localStorage, qid); state.textContent = "오답노트에 저장";
+      addWrong(localStorage, qid); noteChanged(); state.textContent = "오답노트에 저장";
     });
   });
   result.scrollIntoView({ behavior: "smooth" });
@@ -463,12 +464,12 @@ function renderWrongNote() {
     ${bottomBack("← 홈")}`;
   bindBacks(home);
   const state = app.querySelector("#sync-state");
-  const run = async (opt, msg) => {
+  const run = async (msg) => {
     state.textContent = "동기화 중…";
-    try { await syncNow(opt); state.textContent = msg; renderWrongNote(); }
+    try { await syncNow(); state.textContent = msg; renderWrongNote(); }
     catch (err) { state.textContent = "실패: " + err.message; }
   };
-  app.querySelector("#sync-now")?.addEventListener("click", () => run({}, "동기화 완료"));
+  app.querySelector("#sync-now")?.addEventListener("click", () => run("동기화 완료"));
   app.querySelector("#unlink")?.addEventListener("click", () => { unlink(localStorage); renderWrongNote(); });
   const linkBox = app.querySelector("#link-box");
   app.querySelector("#show-link")?.addEventListener("click", () => { linkBox.hidden = !linkBox.hidden; });
@@ -476,7 +477,7 @@ function renderWrongNote() {
     const t = app.querySelector("#token-input").value.trim();
     if (!t) return;
     setToken(localStorage, t);
-    run({}, "연결됨 · 동기화 완료");
+    run("연결됨 · 동기화 완료");
   });
   app.querySelector("#copy-link").addEventListener("click", async (e) => {
     const link = location.origin + location.pathname + "#w=" + qids.join(",");
@@ -493,6 +494,7 @@ function renderWrongNote() {
     const added = parseWrongCode(app.querySelector("#sync-input").value);
     if (!added.length) return;
     mergeWrong(localStorage, added);
+    noteChanged();
     renderWrongNote();
   });
   if (!questions.length) return;
@@ -503,7 +505,7 @@ function renderWrongNote() {
   app.querySelector("#clear").addEventListener("click", () => {
     if (confirm("오답노트를 모두 비웁니다. 계속할까요?")) {
       clearWrong(localStorage);
-      syncNow({ replace: true }).catch(() => {});
+      noteChanged();
       renderWrongNote();
     }
   });
@@ -512,9 +514,19 @@ function renderWrongNote() {
 /* ---------------- 오답노트 기기 간 동기화 (GitHub Gist) ---------------- */
 
 // 지운 것도 반영하려면 replace=true로 로컬 목록을 그대로 올린다
-async function syncNow({ replace = false } = {}) {
+let syncTimer = null;
+// 오답노트가 바뀔 때마다 호출 — 잠깐 모았다가 한 번만 올린다
+function noteChanged() {
+  if (!isLinked(localStorage)) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    syncNow().catch(() => {});
+  }, 800);
+}
+
+async function syncNow() {
   if (!isLinked(localStorage)) return null;
-  const merged = await gistSync(localStorage, listWrong(localStorage), { replace });
+  const merged = await gistSync(localStorage, listWrong(localStorage), listRemoved(localStorage));
   if (merged) localStorage.setItem("jeseon:wrongnote", JSON.stringify(merged));
   return merged;
 }
@@ -590,10 +602,12 @@ app.addEventListener("click", (e) => {
     const qid = el.dataset.qid;
     if (el.classList.contains("done")) {
       removeWrong(localStorage, qid);
+      noteChanged();
       el.classList.remove("done");
       el.textContent = "＋ 오답노트에 추가";
     } else {
       addWrong(localStorage, qid);
+      noteChanged();
       el.classList.add("done");
       el.textContent = "✓ 오답노트에 있음";
     }
@@ -610,6 +624,14 @@ if (location.hash.startsWith("#w=")) {
 }
 setupTheme();
 setupShortcutPanel();
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) syncNow().then((m) => { if (m) renderIfHome(); }).catch(() => {});
+});
+
+function renderIfHome() {
+  if (app.querySelector('[data-go="wrong"]')) home();
+}
+
 loadData().then((d) => {
   DATA = d;
   home();

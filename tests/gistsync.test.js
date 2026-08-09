@@ -51,12 +51,23 @@ test("다른 기기에서 만든 Gist를 찾아 이어 쓴다(새로 만들지 �
   assert.deepEqual(await gistSync(s, ["b"]), ["a", "b"]);
 });
 
-test("replace 옵션은 로컬 목록으로 덮어쓴다(삭제 반영)", async () => {
+test("한쪽에서 지운 건 빠지고, 다른 쪽이 담은 건 살아남는다", async () => {
   const s = fakeStore({ "jeseon:gistToken": "tok", "jeseon:gistId": "g1" });
   stubFetch([
-    ["gists/g1", { json: { files: { "jeseon-wrongnote.json": { content: JSON.stringify({ wrong: ["a", "b"] }) } } } }],
+    ["gists/g1", { json: { files: { "jeseon-wrongnote.json": {
+      content: JSON.stringify({ wrong: ["a", "b"], removed: [] }) } } } }],
   ]);
-  assert.deepEqual(await gistSync(s, ["a"], { replace: true }), ["a"]);
+  // 이 기기는 b를 지웠고 c를 새로 담았다 → a(다른 기기 것) 유지, b 삭제, c 추가
+  assert.deepEqual(await gistSync(s, ["a", "c"], ["b"]), ["a", "c"]);
+});
+
+test("원격에서 지운 항목은 이 기기에 남아 있어도 되살아나지 않는다", async () => {
+  const s = fakeStore({ "jeseon:gistToken": "tok", "jeseon:gistId": "g1" });
+  stubFetch([
+    ["gists/g1", { json: { files: { "jeseon-wrongnote.json": {
+      content: JSON.stringify({ wrong: ["a"], removed: ["b"] }) } } } }],
+  ]);
+  assert.deepEqual(await gistSync(s, ["a", "b"]), ["a"]);
 });
 
 test("연결 해제하면 토큰과 Gist 정보가 지워진다", () => {

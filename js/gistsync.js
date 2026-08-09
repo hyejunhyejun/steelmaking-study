@@ -18,28 +18,33 @@ async function findGistId(token) {
 }
 
 // 원격과 로컬을 합쳐 저장하고 합친 목록을 돌려준다.
-// ponytail: 합집합 방식이라 한 기기에서 지운 항목이 다른 기기에 남아 있으면 되살아난다.
-// 삭제 직후 곧바로 push하므로 실사용엔 충분. 문제되면 삭제 표시(tombstone)를 추가.
-export async function gistSync(store, localList, { replace = false } = {}) {
+// 담은 것은 합집합, 지운 것은 removed 목록으로 남겨 어느 기기에서도 되살아나지 않게 한다.
+export async function gistSync(store, localList, localRemoved = []) {
   const token = store.getItem(TOKEN);
   if (!token) return null;
   let id = store.getItem(GIST) || (await findGistId(token));
-  let remote = [];
+  let remote = [], remoteGone = [];
   if (id) {
     const r = await fetch(`${API}/gists/${id}`, { headers: head(token) });
     if (r.ok) {
-      try { remote = JSON.parse((await r.json()).files[FILE].content).wrong || []; } catch {}
+      try {
+        const j = JSON.parse((await r.json()).files[FILE].content);
+        remote = j.wrong || []; remoteGone = j.removed || [];
+      } catch {}
     }
   }
-  const merged = replace ? localList : [...new Set([...remote, ...localList])];
+  // 양쪽에서 담은 건 모두 살리고, 어느 쪽에서든 지운 건 뺀다
+  const gone = new Set([...remoteGone, ...localRemoved]);
+  const merged = [...new Set([...remote, ...localList])].filter((q) => !gone.has(q));
   const body = JSON.stringify({
     description: "제선기능장 오답노트 (기기 간 동기화)",
     public: false,
-    files: { [FILE]: { content: JSON.stringify({ wrong: merged }, null, 1) } },
+    files: { [FILE]: { content: JSON.stringify({ wrong: merged, removed: [...gone] }, null, 1) } },
   });
   const res = await fetch(id ? `${API}/gists/${id}` : `${API}/gists`,
     { method: id ? "PATCH" : "POST", headers: head(token), body });
   if (!res.ok) throw new Error(`저장 실패 ${res.status}`);
   if (!id) store.setItem(GIST, (await res.json()).id);
+  store.setItem("jeseon:wrongRemoved", JSON.stringify([...gone]));
   return merged;
 }

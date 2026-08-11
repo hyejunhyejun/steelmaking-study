@@ -200,3 +200,16 @@ def test_topic_answer_fixes_applied():
     # 38번은 기출(22-2-10)과 같은 답
     r = {q["qid"]: q for c in d["rounds"] for q in c["questions"]}
     assert by["t07-38"]["parts"] == r["22-2-10"]["parts"]
+
+
+def test_same_question_same_answer_across_sections():
+    """회차와 이외 기출문제에 겹치는 문항은 같은 문장으로 답한다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    # 코크스 역할: 개수만 다르고 앞에서부터 같은 순서
+    role4 = by["t03-14"]["parts"][0]["answers"]
+    assert by["23-2-5"]["parts"][0]["answers"] == role4
+    assert by["22-1-11"]["parts"][0]["answers"] == role4[:3]
+    # 예열탄 장점 2가지
+    assert (by["21-1-7"]["parts"][1]["answers"]
+            == by["t17-76"]["parts"][1]["answers"])

@@ -147,7 +147,9 @@ function home() {
 
 function topicsCollection() {
   const questions = [];
-  (DATA.topics || []).forEach((t) => t.questions.forEach((q) => questions.push(q)));
+  // 표시 번호는 순서대로 다시 매긴다(중간에 문항을 끼워넣어도 번호가 이어지도록)
+  (DATA.topics || []).forEach((t) =>
+    t.questions.forEach((q) => questions.push({ ...q, displayNum: questions.length + 1 })));
   return { id: "topics-all", label: "이외 기출문제", type: "topic", questions };
 }
 

@@ -235,6 +235,8 @@ def extract_docx_photos(docx_path, out_dir, wanted_nums):
 NOTE_FIGURES = {
     # 저장이름: (사진 인덱스(0부터), 자를 영역(좌,상,우,하))
     "note_quartz": (4, (100, 128, 562, 362)),    # 5쪽 석영 상변태 곡선
+    "note_tuyere": (1, (58, 306, 290, 404)),     # 2쪽 풍구 앞 A·B·C 영역
+    "note_flue": (1, (60, 470, 480, 620)),       # 2쪽 Flue별 온도분포(ⓐ)
 }
 
 

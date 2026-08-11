@@ -14,7 +14,7 @@ def test_structure_counts():
     assert len(d["rounds"]) == 10
     assert sum(len(r["questions"]) for r in d["rounds"]) == 200
     assert len(d["topics"]) == 62
-    assert sum(len(t["questions"]) for t in d["topics"]) == 171
+    assert sum(len(t["questions"]) for t in d["topics"]) == 172  # 워드 171 + 추가 1
     assert d["rounds"][0]["label"] == "2021년 1회차"
     assert d["rounds"][-1]["label"] == "2025년 2회차"
 
@@ -61,8 +61,6 @@ def test_svg_diagrams_are_attached():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
     expected = {
-        "t01-8": "diagrams/tuyere-zones.svg",
-        "t01-9": "diagrams/flue-temp.svg",
         "t05-33": "diagrams/boudouard-pressure.svg",
         "t12-57": "diagrams/slag-ternary.svg",
         }
@@ -100,7 +98,7 @@ def test_random_pool_has_no_duplicates():
     pool = [q["qid"] for r in d["rounds"] for q in r["questions"]]
     pool += [q["qid"] for t in d["topics"] for q in t["questions"] if not q["examRefs"]]
     assert len(pool) == len(set(pool))
-    assert len(pool) == 200 + 86
+    assert len(pool) == 200 + 87  # 추가 문항 1개 포함
 
 
 def test_no_leftover_internal_field():
@@ -130,6 +128,8 @@ def test_real_figures_replace_svg_where_available():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
     assert by_qid["t03-24"]["images"] == ["images/note_quartz.jpg"]
+    assert by_qid["t01-8"]["images"] == ["images/note_tuyere.jpg"]
+    assert by_qid["t01-9"]["images"] == ["images/note_flue.jpg"]
     assert by_qid["t12-58"]["images"] == ["images/photo_58.jpg"]
     assert by_qid["t47-155"]["images"] == ["images/photo_155.jpg"]
 
@@ -178,3 +178,25 @@ def test_fuel_ratio_question_and_answer_agree():
     assert "= 85%" in text
     assert "85% / 5% = 17" in text
     assert "29.33" not in text
+
+
+def test_extra_blending_question_inserted_before_25():
+    """워드에 없는 블렌딩 문항이 배합 유형 맨 앞(25번 앞)에 들어간다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    t04 = next(t for t in d["topics"] if t["id"] == "t04")
+    assert t04["questions"][0]["text"].startswith("블렌딩")
+    assert t04["questions"][1]["num"] == 25
+
+
+def test_topic_answer_fixes_applied():
+    """이외 기출문제 수정분이 반영된다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    assert "(*불고기적수)" not in by["t03-13"]["text"]
+    assert by["t03-24"]["parts"][0]["answers"] == ["573℃", "870℃", "1,470℃", "1,713℃"]
+    assert "통액성 불량" in " ".join(by["t03-23"]["parts"][0]["answers"])
+    assert by["t07-37"]["parts"][2]["answers"] == ["출선구에서 장입기준선까지의 용적"]
+    assert [p["label"] for p in by["t02-11"]["parts"]][-1] == "노상부"
+    # 38번은 기출(22-2-10)과 같은 답
+    r = {q["qid"]: q for c in d["rounds"] for q in c["questions"]}
+    assert by["t07-38"]["parts"] == r["22-2-10"]["parts"]

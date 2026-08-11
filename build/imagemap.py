@@ -10,13 +10,14 @@ DOCX_PHOTO_NUMS = {58, 155}
 
 TOPIC_IMAGES = {
     # --- 직접 제작한 SVG 도표 ---
-    "t01-8": ["diagrams/tuyere-zones.svg"],          # 풍구 앞 A·B·C 영역
-    "t01-9": ["diagrams/flue-temp.svg"],             # Flue별 온도분포(PS~CS), ⓐ 편차
+    # (t01-8·t01-9는 실물 그림으로 교체 — 아래 노트 사진 참조)
     "t05-33": ["diagrams/boudouard-pressure.svg"],   # 부두아 압력 증가→우측 이동(문제/답)
     "t12-57": ["diagrams/slag-ternary.svg"],         # 슬래그 삼원도 A·B점
 
     # --- 노트 사진에서 잘라낸 실물 그림 ---
-    "t03-24": ["images/note_quartz.jpg"],   # 석영 상변태 곡선(톱니형 실물)
+    "t01-8": ["images/note_tuyere.jpg"],    # 풍구 앞 A·B·C 영역(실물)
+    "t01-9": ["images/note_flue.jpg"],      # Flue별 온도분포 PS~CS, ⓐ(실물)
+    "t03-24": ["images/note_quartz.jpg"],   # 석영 상변태 곡선(빈칸 실물)
 
     # --- 엑셀에서 가져온 그림(답안 라벨 체계까지 일치 확인) ---
     "t07-37": ["images/21-1_0.jpg"],   # 고로 부위/구역 명칭 (가~바)

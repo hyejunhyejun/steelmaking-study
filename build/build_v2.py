@@ -9,6 +9,7 @@ from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
                       NO_IMAGE_NEEDED)
 from tables import TABLES
 from answers import ANSWER_OVERRIDES, ANSWER_UNIFY, QUESTION_TEXT_FIXES
+from extras import EXTRA_QUESTIONS
 from derive import derive_keywords, normalize
 
 
@@ -79,6 +80,13 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
     # 노트 사진에서 잘라 쓰는 실물 그림(석영 상변태 등)
     extract_note_figures(os.path.join(os.path.dirname(photos_docx), "추가노트사진"),
                          os.path.join(out_dir, "images"))
+
+    # 워드에 없는 추가 문항을 지정 위치에 끼워넣는다
+    for t in topics:
+        for before, q in EXTRA_QUESTIONS.get(t["id"], []):
+            idx = next((i for i, x in enumerate(t["questions"]) if x["num"] == before),
+                       len(t["questions"]))
+            t["questions"].insert(idx, dict(q, parts=[dict(p) for p in q["parts"]]))
 
     for t in topics:
         t["type"] = "topic"

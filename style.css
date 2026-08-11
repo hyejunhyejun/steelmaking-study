@@ -237,3 +237,26 @@ button.reveal-part:hover { border-color: var(--accent); color: var(--accent); }
   border-radius: 6px; padding: .05rem .4rem; text-align: center; white-space: nowrap;
 }
 .mn-val { color: var(--fg); }
+
+
+/* 오답노트 횟수 버튼 */
+.wrong-btns { display: inline-flex; gap: .3rem; align-items: center; }
+.add-wrong .plus { opacity: .75; font-size: .85em; }
+.drop-wrong {
+  padding: .25rem .55rem; font-size: .82rem;
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+}
+.drop-wrong:hover { color: var(--danger); border-color: var(--danger); }
+.wrong-list { list-style: none; padding: 0; margin: .2rem 0 .8rem; }
+.wrong-list li {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .35rem .1rem; border-bottom: 1px solid var(--border);
+}
+.wrong-list .wq { flex: 1; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.times {
+  flex: none; min-width: 2.6rem; text-align: center;
+  padding: .12rem .4rem; border-radius: 999px;
+  background: var(--badge-bg); color: var(--badge-fg);
+  border: 1px solid var(--badge-border); font-size: .78rem; font-weight: 700;
+}
+.times.hot { background: var(--danger); color: #fff; border-color: var(--danger); }

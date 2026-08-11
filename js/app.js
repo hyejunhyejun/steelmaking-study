@@ -7,7 +7,8 @@ import { matchKeywords, scoreOf } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
-import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode } from "./wrongnote.js";
+import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode,
+         bumpWrong, counts, countOf } from "./wrongnote.js";
 import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
@@ -21,7 +22,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-07-28a";
+const APP_VERSION = "2026-08-11a";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -184,13 +185,13 @@ function renderModeSelect(collection, backFn = home) {
 
 function startStudy(collection, backFn) {
   keyHandler = null;
-  const wrongIds = listWrong(localStorage);
+  const wrongCounts = counts(localStorage);
   app.innerHTML = `<button class="back">← 뒤로</button>
     <h2>${collection.label} · 공부</h2><div id="list"></div>${bottomBack("← 뒤로")}`;
   bindBacks(backFn);
   const list = app.querySelector("#list");
   collection.questions.forEach((q) =>
-    list.appendChild(renderQuestionCard(q, { showAnswers: true, wrongIds }))
+    list.appendChild(renderQuestionCard(q, { showAnswers: true, wrongCounts }))
   );
 }
 
@@ -198,7 +199,7 @@ function startStudy(collection, backFn) {
 
 function startPractice(collection, backFn) {
   keyHandler = null;
-  const wrongIds = listWrong(localStorage);
+  const wrongCounts = counts(localStorage);
   app.innerHTML = `<button class="back">← 뒤로</button>
     <h2>${collection.label} · 연습</h2>
     <p class="hint-line">답이 가려져 있습니다. 먼저 떠올린 뒤 <b>답 보기</b>를 누르세요.</p>
@@ -210,7 +211,7 @@ function startPractice(collection, backFn) {
   bindBacks(backFn);
   const list = app.querySelector("#list");
   collection.questions.forEach((q) =>
-    list.appendChild(renderQuestionCard(q, { showAnswers: true, masked: true, wrongIds }))
+    list.appendChild(renderQuestionCard(q, { showAnswers: true, masked: true, wrongCounts }))
   );
   app.querySelector("#reveal-all").addEventListener("click", () =>
     list.querySelectorAll(".part.masked").forEach((p) => p.classList.remove("masked"))
@@ -239,7 +240,7 @@ function startTest(collection, backFn) {
 
   function renderOne() {
     const q = collection.questions[i];
-    const wrongIds = listWrong(localStorage);
+    const wrongCounts = counts(localStorage);
     const inputs = q.parts.map((p, pi) => {
       const label = p.label ? `<div class="plabel">${renderFormula(p.label)}</div>` : "";
       const val = (typed[q.qid] || [])[pi] || "";
@@ -252,7 +253,7 @@ function startTest(collection, backFn) {
       <article class="qcard">
         ${questionHead(q)}${conditionBlock(q)}${imageBlock(q)}${questionTableBlock(q)}
         ${inputs}
-        ${addWrongButton(q, wrongIds.includes(q.qid))}
+        ${addWrongButton(q, wrongCounts[q.qid] || 0)}
       </article>
       <div class="controls">
         <button class="check">채점</button>
@@ -317,9 +318,10 @@ function startTest(collection, backFn) {
 
   function mark(ok) {
     const q = collection.questions[i];
+    const was = marks[q.qid];
     marks[q.qid] = ok;
     if (ok) removeWrong(localStorage, q.qid);
-    else addWrong(localStorage, q.qid);
+    else if (was !== false) bumpWrong(localStorage, q.qid);   // 같은 문제 두 번 눌러도 1회만
     noteChanged();
     if (i + 1 >= collection.questions.length) {
       persist();
@@ -403,10 +405,15 @@ function grade(collection) {
     const qid = row.dataset.qid;
     const state = row.querySelector(".mark-state");
     row.querySelector(".o").addEventListener("click", () => {
+      delete row.dataset.counted;
       removeWrong(localStorage, qid); noteChanged(); state.textContent = "맞음 처리";
     });
     row.querySelector(".x").addEventListener("click", () => {
-      addWrong(localStorage, qid); noteChanged(); state.textContent = "오답노트에 저장";
+      if (row.dataset.counted === "1") return;                // 연타로 두 번 세지 않게
+      row.dataset.counted = "1";
+      const n = bumpWrong(localStorage, qid);
+      noteChanged();
+      state.textContent = `오답노트 ${n}회`;
     });
   });
   result.scrollIntoView({ behavior: "smooth" });
@@ -430,7 +437,9 @@ function startRandom() {
 
 function renderWrongNote() {
   keyHandler = null;
-  const qids = listWrong(localStorage);
+  const cnt = counts(localStorage);
+  const qids = listWrong(localStorage)
+    .slice().sort((a, b) => (cnt[b] || 0) - (cnt[a] || 0));   // 많이 틀린 것부터
   const questions = qids.map((id) => findByQid(DATA, id)).filter(Boolean);
   const collection = { id: "wrongnote", label: "오답노트", type: "wrong", questions };
   app.innerHTML = `
@@ -457,7 +466,13 @@ function renderWrongNote() {
       <button id="do-import">합치기</button>
     </div>
     ${questions.length
-      ? `<button class="danger" id="clear">오답노트 초기화</button>
+      ? `<ul class="wrong-list">${questions.map((q) => {
+            const n = cnt[q.qid] || 1;
+            return `<li><span class="times${n > 2 ? " hot" : ""}">${n}회</span>
+              <span class="wq">${q.text.replace(/</g, "&lt;").slice(0, 70)}</span>
+              <button class="drop-wrong" data-qid="${q.qid}">－ 빼기</button></li>`;
+          }).join("")}</ul>
+         <button class="danger" id="clear">오답노트 초기화</button>
          <div class="mode-grid">
            <button data-mode="practice">연습</button>
            <button data-mode="test">테스트</button>
@@ -529,7 +544,8 @@ function noteChanged() {
 
 async function syncNow() {
   if (!isLinked(localStorage)) return null;
-  const merged = await gistSync(localStorage, listWrong(localStorage), listRemoved(localStorage));
+  const merged = await gistSync(localStorage, listWrong(localStorage),
+                               listRemoved(localStorage), counts(localStorage));
   if (merged) localStorage.setItem("jeseon:wrongnote", JSON.stringify(merged));
   return merged;
 }
@@ -602,18 +618,22 @@ app.addEventListener("click", (e) => {
     return;
   }
   if (el instanceof HTMLElement && el.classList.contains("add-wrong")) {
+    // 누를 때마다 +1 — 여러 번 틀린 문제가 위로 올라온다
     const qid = el.dataset.qid;
-    if (el.classList.contains("done")) {
-      removeWrong(localStorage, qid);
-      noteChanged();
-      el.classList.remove("done");
-      el.textContent = "＋ 오답노트에 추가";
-    } else {
-      addWrong(localStorage, qid);
-      noteChanged();
-      el.classList.add("done");
-      el.textContent = "✓ 오답노트에 있음";
-    }
+    const n = bumpWrong(localStorage, qid);
+    noteChanged();
+    el.closest(".wrong-btns").outerHTML =
+      addWrongButton({ qid }, n);
+    return;
+  }
+  if (el instanceof HTMLElement && el.classList.contains("drop-wrong")) {
+    const qid = el.dataset.qid;
+    removeWrong(localStorage, qid);
+    noteChanged();
+    const box = el.closest(".wrong-btns");
+    if (box) box.outerHTML = addWrongButton({ qid }, 0);
+    // 오답노트 화면에서 뺐으면 목록을 다시 그린다
+    if (app.querySelector("h2")?.textContent.startsWith("오답노트")) renderWrongNote();
   }
 });
 

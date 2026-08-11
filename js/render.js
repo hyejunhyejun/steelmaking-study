@@ -61,13 +61,17 @@ export function questionHead(q) {
       ${ownerBadge(q)}${topicBadge(q)}${examBadge(q)}<span class="stars">${starText(q.stars || 1)}</span></div>`;
 }
 
-export function addWrongButton(q, saved) {
-  return `<button class="add-wrong${saved ? " done" : ""}" data-qid="${q.qid}">
-      ${saved ? "✓ 오답노트에 있음" : "＋ 오답노트에 추가"}</button>`;
+export function addWrongButton(q, count = 0) {
+  const n = typeof count === "number" ? count : (count ? 1 : 0);
+  const label = n ? `✓ 오답노트 ${n}회 <span class="plus">＋1</span>` : "＋ 오답노트에 추가";
+  const drop = n ? `<button class="drop-wrong" data-qid="${q.qid}"
+      title="오답노트에서 빼기">－ 빼기</button>` : "";
+  return `<span class="wrong-btns"><button class="add-wrong${n ? " done" : ""}"
+      data-qid="${q.qid}">${label}</button>${drop}</span>`;
 }
 
 // masked=true면 답을 가리고 '답 보기'를 눌러야 열린다(먼저 떠올리는 연습용)
-export function renderQuestionCard(q, { showAnswers, masked = false, wrongIds = [] }) {
+export function renderQuestionCard(q, { showAnswers, masked = false, wrongCounts = {} }) {
   const el = document.createElement("article");
   el.className = "qcard";
   const parts = q.parts.map((p) => {
@@ -85,6 +89,6 @@ export function renderQuestionCard(q, { showAnswers, masked = false, wrongIds = 
     : "";
   el.innerHTML = questionHead(q) + conditionBlock(q) + imageBlock(q) +
     questionTableBlock(q) + answerTable + parts +
-    addWrongButton(q, wrongIds.includes(q.qid));
+    addWrongButton(q, wrongCounts[q.qid] || 0);
   return el;
 }

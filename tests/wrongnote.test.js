@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode } from "../js/wrongnote.js";
+import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode,
+         bumpWrong, countOf, mergeCounts } from "../js/wrongnote.js";
 
 function fakeStore() {
   const m = new Map();
@@ -69,4 +70,43 @@ test("내가 지운 문제는 링크로 다시 들어와도 되살아나지 않�
   removeWrong(s, "21-1-1");
   mergeWrong(s, ["21-1-1", "21-1-2"]);   // 예전 링크를 다시 열었을 때
   assert.deepEqual(listWrong(s), ["21-1-2"]);
+});
+
+test("누를 때마다 틀린 횟수가 1씩 올라간다", () => {
+  const s = fakeStore();
+  assert.equal(bumpWrong(s, "21-1-4"), 1);
+  assert.equal(bumpWrong(s, "21-1-4"), 2);
+  assert.equal(bumpWrong(s, "21-1-4"), 3);
+  assert.deepEqual(listWrong(s), ["21-1-4"]);   // 목록엔 하나만
+});
+
+test("수동으로 담은 문제는 1회로 잡힌다", () => {
+  const s = fakeStore();
+  addWrong(s, "21-1-4");
+  assert.equal(countOf(s, "21-1-4"), 1);
+});
+
+test("빼면 횟수도 사라진다", () => {
+  const s = fakeStore();
+  bumpWrong(s, "21-1-4"); bumpWrong(s, "21-1-4");
+  removeWrong(s, "21-1-4");
+  assert.equal(countOf(s, "21-1-4"), 0);
+  // 다시 담으면 1부터
+  assert.equal(bumpWrong(s, "21-1-4"), 1);
+});
+
+test("다른 기기 횟수와 합치면 많이 틀린 쪽이 남는다", () => {
+  const s = fakeStore();
+  bumpWrong(s, "a"); bumpWrong(s, "a");          // 이 기기 2회
+  mergeCounts(s, { a: 5, b: 3 });
+  assert.equal(countOf(s, "a"), 5);
+  assert.equal(countOf(s, "b"), 3);
+});
+
+test("지운 문제는 합칠 때 횟수도 되살아나지 않는다", () => {
+  const s = fakeStore();
+  bumpWrong(s, "a");
+  removeWrong(s, "a");
+  mergeCounts(s, { a: 9 });
+  assert.equal(countOf(s, "a"), 0);
 });

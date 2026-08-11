@@ -124,6 +124,12 @@ def _upscale_small(im):
     return im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=110, threshold=3))
 
 
+def _trim(im):
+    """이미 반듯한 그림은 여백만 뗀다(기울기 보정은 오히려 비뚤어진다)."""
+    bb = _ink_bbox(im)
+    return im.crop(bb) if bb else im
+
+
 def _straighten(im):
     """여백 트림 → 기울기 보정 → 재트림. 여백이 크면 기울기 측정이 흐려진다."""
     for _ in range(2):
@@ -135,7 +141,7 @@ def _straighten(im):
     return im.crop(bb) if bb else im
 
 
-def _save(raw_bytes, path, rotate=0, crop_ui=False, text_crop=None):
+def _save(raw_bytes, path, rotate=0, crop_ui=False, text_crop=None, straighten=True):
     """폰 UI 크롭 → 90도 회전 → 기울기 보정 → 잉크 트림 → 지문 제거 → 축소 → 저장."""
     try:
         im = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
@@ -145,13 +151,13 @@ def _save(raw_bytes, path, rotate=0, crop_ui=False, text_crop=None):
         if rotate:
             im = im.rotate(rotate, expand=True)
         im = _strip_dark_borders(im)
-        im = _straighten(im)
+        im = _straighten(im) if straighten else _trim(im)
         if text_crop:
             w, h = im.size
             l, t, r, b = text_crop
             im = im.crop((int(w * l), int(h * t), int(w * r), int(h * b)))
             # 지문을 떼어낸 뒤 다시 재보정(남은 그림 기준으로 기울기가 달라진다)
-            im = _straighten(im)
+            im = _straighten(im) if straighten else _trim(im)
         im = _upscale_small(im)
         if im.width > MAX_IMG_WIDTH:
             h2 = round(im.height * MAX_IMG_WIDTH / im.width)
@@ -234,10 +240,36 @@ def extract_docx_photos(docx_path, out_dir, wanted_nums):
 # 화면을 찍은 사진이라 회색빛·모아레가 있어 색을 유지한 채 대비를 올린다.
 NOTE_FIGURES = {
     # 저장이름: (사진 인덱스(0부터), 자를 영역(좌,상,우,하))
-    "note_quartz": (4, (100, 128, 562, 362)),    # 5쪽 석영 상변태 곡선
-    "note_tuyere": (1, (58, 306, 290, 404)),     # 2쪽 풍구 앞 A·B·C 영역
-    "note_flue": (1, (60, 470, 480, 620)),       # 2쪽 Flue별 온도분포(ⓐ)
+    # 노트 사진에서 잘라 쓰던 그림은 원본자료/추가그림의 깨끗한 원본으로 대체됐다.
 }
+
+# 원본자료/추가그림 파일 → 저장이름 (사용자가 직접 준 깨끗한 원본)
+EXTRA_FIGURES = {
+    "att1.png": "fig_tuyere",     # 풍구 앞 A·B·C 영역
+    "att2.png": "fig_flue",       # Flue별 온도분포 p/s~c/s, ⓐ
+    "att3.png": "fig_quartz",     # 석영 상변태 곡선(빈칸)
+    "att7.png": "fig_coke_rate",  # 정압레벨별 Coke 연소속도 표
+}
+
+# 위아래에 딸려온 글자 조각을 떼어낼 비율 (좌,상,우,하)
+EXTRA_CROPS = {"fig_coke_rate": (0, 0.10, 1, 1)}
+
+
+def extract_extra_figures(extra_dir, out_dir):
+    """사용자가 준 원본 그림을 트림·업스케일해 저장하고 {이름: 상대경로} 반환."""
+    if not os.path.isdir(extra_dir):
+        return {}
+    os.makedirs(out_dir, exist_ok=True)
+    made = {}
+    for fname, name in EXTRA_FIGURES.items():
+        src = os.path.join(extra_dir, fname)
+        if not os.path.exists(src):
+            continue
+        with open(src, "rb") as f:
+            _save(f.read(), os.path.join(out_dir, name + ".jpg"),
+                  text_crop=EXTRA_CROPS.get(name), straighten=False)
+        made[name] = f"images/{name}.jpg"
+    return made
 
 
 def _enhance_screen_photo(im):

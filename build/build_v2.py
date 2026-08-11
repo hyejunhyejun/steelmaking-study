@@ -4,7 +4,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import docx
 from parse_docx import parse_rounds_doc, parse_photos_doc
-from images import extract_images, extract_docx_photos, extract_note_figures
+from images import (extract_images, extract_docx_photos, extract_note_figures,
+                    extract_extra_figures)
 from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
                       NO_IMAGE_NEEDED)
 from tables import TABLES
@@ -80,6 +81,9 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
     # 노트 사진에서 잘라 쓰는 실물 그림(석영 상변태 등)
     extract_note_figures(os.path.join(os.path.dirname(photos_docx), "추가노트사진"),
                          os.path.join(out_dir, "images"))
+    # 사용자가 직접 준 깨끗한 원본 그림
+    extract_extra_figures(os.path.join(os.path.dirname(photos_docx), "추가그림"),
+                          os.path.join(out_dir, "images"))
 
     # 워드에 없는 추가 문항을 지정 위치에 끼워넣는다
     for t in topics:

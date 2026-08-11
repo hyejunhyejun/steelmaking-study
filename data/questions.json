@@ -14519,7 +14519,7 @@
           ],
           "qid": "t01-8",
           "images": [
-            "images/note_tuyere.jpg"
+            "images/fig_tuyere.jpg"
           ],
           "imageNeeded": false,
           "conditions": [],
@@ -14574,7 +14574,7 @@
           ],
           "qid": "t01-9",
           "images": [
-            "images/note_flue.jpg"
+            "images/fig_flue.jpg"
           ],
           "imageNeeded": false,
           "conditions": [],
@@ -15595,7 +15595,7 @@
           ],
           "qid": "t03-24",
           "images": [
-            "images/note_quartz.jpg"
+            "images/fig_quartz.jpg"
           ],
           "imageNeeded": false,
           "conditions": [],
@@ -16959,33 +16959,9 @@
             }
           ],
           "qid": "t07-40",
-          "images": [],
-          "table": {
-            "headers": [
-              "부위",
-              "Coke 연소속도"
-            ],
-            "questionRows": [
-              [
-                "Shaft",
-                "2652"
-              ],
-              [
-                "Bosh, Belly",
-                "4992"
-              ]
-            ],
-            "rows": [
-              [
-                "Shaft",
-                "2652"
-              ],
-              [
-                "Bosh, Belly",
-                "4992"
-              ]
-            ]
-          },
+          "images": [
+            "images/fig_coke_rate.jpg"
+          ],
           "imageNeeded": false,
           "conditions": [],
           "unified": true,

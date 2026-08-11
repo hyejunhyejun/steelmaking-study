@@ -127,9 +127,10 @@ def test_real_figures_replace_svg_where_available():
     """실물 그림이 있는 문항은 SVG 대신 사진을 쓴다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
-    assert by_qid["t03-24"]["images"] == ["images/note_quartz.jpg"]
-    assert by_qid["t01-8"]["images"] == ["images/note_tuyere.jpg"]
-    assert by_qid["t01-9"]["images"] == ["images/note_flue.jpg"]
+    assert by_qid["t03-24"]["images"] == ["images/fig_quartz.jpg"]
+    assert by_qid["t01-8"]["images"] == ["images/fig_tuyere.jpg"]
+    assert by_qid["t01-9"]["images"] == ["images/fig_flue.jpg"]
+    assert by_qid["t07-40"]["images"] == ["images/fig_coke_rate.jpg"]
     assert by_qid["t12-58"]["images"] == ["images/photo_58.jpg"]
     assert by_qid["t47-155"]["images"] == ["images/photo_155.jpg"]
 

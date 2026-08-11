@@ -12,6 +12,8 @@ QUESTION_TEXT_FIXES = {
     # 두문자는 암기법 문서로 옮겼으므로 문제에서 제거
     "t03-13": "제철용 코크스 구비조건 5가지를 쓰시오.",
     "t17-75": "예열탄 장입법의 장점 5가지를 쓰시오.",
+    "t11-52": "노정장입을 균일하게 하는 장치 2가지를 쓰시오.",
+    "t21-88": "측면연화냉각법(냉각방식)의 종류 4가지를 쓰시오.",
     "t02-11": "고로 내 반응구역에 대하여 설명하시오.",
     "t03-24": "(그림) 석영 상변태 그래프의 ( ) 안에 해당하는 온도를 쓰시오. "
               "(최고품질 Coke 생산을 위해 최대로 가열할 수 있는 온도)",
@@ -278,6 +280,124 @@ _ZN_TI = [
     ]},
 ]
 
+# ===== 회차 ↔ 이외 기출문제 답 통일 블록 =====
+# 같은 것을 묻는 문항은 아래 블록을 함께 써서 문장까지 똑같이 맞춘다.
+
+_STOVE_IN = ["연소실과 축열실이 하나의 돔에 설치",
+             "사이의 사절벽이 손상되기 쉬워 고온 송풍 어려움(약 1,150℃)",
+             "설치 장소가 적게 소요됨"]
+_STOVE_OUT = ["연소실과 축열실이 별도의 돔에 설치",
+              "열효율이 우수하여 열풍로 능력 극대화 가능",
+              "1,300℃ 고온 송풍 가능"]
+_STOVE_EFF = ["코퍼스식(외연식)이 우수함"]
+_STOVE_2 = [{"label": "내연식(Cowper·McClure·쿠퍼식)", "answers": _STOVE_IN},
+            {"label": "외연식(Koppers·Martin·코퍼스식)", "answers": _STOVE_OUT}]
+_STOVE_CMP = [{"label": "쿠퍼식(Cowper)", "answers": _STOVE_IN},
+              {"label": "코퍼스식(Koppers)", "answers": _STOVE_OUT},
+              {"label": "열효율", "answers": _STOVE_EFF}]
+_SURGING = ["송풍기 풍압에 대하여 풍량이 비정상적으로 낮아져 송풍기 속도가 떨어지는 현상"]
+
+_TUYERE_CHECK = ["① 풍구 냉각배수 중 노내가스 혼입", "② 풍구 주변부 누수",
+                 "(③ 노정가스 중 수소함량 급상승)"]
+_TUYERE_PREV = ["① 노황 안정으로 용선과 풍구가 접촉되지 않도록 할 것",
+                "② 풍구 재질 개선 및 제조결함 방지",
+                "③ 풍구 냉각 강화(냉각수 수질 향상)",
+                "(④ 하향풍구 적용·풍구 직경 및 돌출 변경)"]
+_TUYERE_DMG = [{"label": "판단방법", "answers": _TUYERE_CHECK},
+               {"label": "예방책", "answers": _TUYERE_PREV}]
+
+_SLAG_ROLE = ["① 탈황·탈인", "② 불순물 흡수 및 분리제거", "③ 노내 온도 유지"]
+_COG_MAIN = ["CH₄", "H₂"]
+
+_HEAT_IN = ["코크스 연소열", "열풍현열", "송풍 중 수분 현열", "간접환원열"]
+_HEAT_OUT = ["석회석 분해열", "노정가스 현열", "Carbon Solution 반응열",
+             "철광석 직접환원열", "송풍 중 수분 분해열"]
+
+_COKE_QUALITY = ["① 냉간강도(DI 150)", "② 열간강도(CSR)", "③ 반응률(CRR)",
+                 "④ 평균입도(MS)", "⑤ 수분"]
+_COKE_STRENGTH = ["① 드럼강도시험", "② 텀블러강도시험", "③ 낙하강도시험"]
+
+_SUBST_DEF = ["취입연료비 증가에 대한 코크스비 감소의 비율"]
+_SUBST_PROB = ["① 노내 통기성 불량", "② 풍구 파손", "③ 매연 발생 증가"]
+
+_SINTER_MAKE = [
+    {"label": "(1) 고온 소결광 파쇄", "answers": ["Hot Crusher"]},
+    {"label": "(2) 냉각", "answers": ["Cooler"]},
+    {"label": "(3) 냉각 후 파쇄", "answers": ["Cold Crusher"]},
+    {"label": "(4) 선별하여 고로에 공급", "answers": ["1·2·3차 Screen"]},
+]
+_HOT_FURNACE = ["① 증광 조업", "② 조습송풍", "③ 고압조업", "④ 산소부화 조업",
+                "⑤ 출선구 폐쇄", "(참고: 송풍온도 저하)"]
+
+_CHARGE_MIX = [
+    {"label": "중장입", "answers": ["코크스비를 적게 하여 코크스보다 광석 장입량이 많을 때"]},
+    {"label": "경장입", "answers": ["코크스비를 크게 하여 광석보다 코크스 장입량이 많을 때"]},
+    {"label": "공장입", "answers": ["광석을 넣지 않고 코크스만 장입할 때"]},
+]
+_ORE_REQ = ["① 철분 함유량이 높을 것", "② 유해 불순물이 적을 것", "③ 피환원성이 좋을 것",
+            "④ 맥석 분리가 용이할 것", "⑤ 적당한 물리적 강도를 가질 것"]
+
+_HUMID_DEF = ["송풍 중 수분을 첨가하여 일정하게 유지함으로써 노황 변동을 감소시키는 조업"]
+_HUMID_EFF = ["① 코크스비 저하", "② 노황 안정", "③ 고온송풍 가능", "④ 생산량 증가"]
+
+_SINTER_PERM = ["① 반광 배합비 조정", "② 배합원료 장입을 수직편석 시킴",
+                "③ 그레이트바 막힘 청소", "④ 생석회 사용비를 높임", "⑤ 사하비를 낮춤",
+                "(⑥ 드럼피더 게이트를 낮춰 회전을 빠르게)"]
+_CARBONIZE_TIME = ["코크스로에 석탄을 장입한 후 압출되기까지 고온 건류되는 시간"]
+_HIGH_PRESS_DEV = ["① 노정압력 제어장치", "② 균배압(수위) 제어장치"]
+_HIGH_PRESS_EFF = ["① 출선량 증가", "② 연료비 감소", "③ 노황 안정", "④ 가스압력 감소·연진 감소"]
+_REDUCE_ORDER = ["Fe₂O₃ → Fe₃O₄ → FeO → P₂O₅ → MnO → SiO₂ → MgO → Al₂O₃ → CaO"]
+_DL_EQUIP = ["① 파쇄 및 선별설비", "② 장입장치", "③ 대차와 구동장치", "④ 점화로", "⑤ 통기장치"]
+_EVEN_CHARGE = ["① 무버블아머(원료분배기)", "② 선회슈트", "③ 프로파일미터"]
+_CHARGE_REQ = ["① 원료를 장입할 때 가스가 새지 않을 것",
+               "② 조업속도에 따른 충분한 장입속도를 보유할 것",
+               "③ 내열·내마모성이 있을 것"]
+_REFRACTORY_REQ = ["① 용선·용재·가스에 대하여 화학적으로 안정할 것",
+                   "② 적당한 열전도도를 가지고 냉각효과가 있을 것",
+                   "③ 열충격이나 마모에 강할 것",
+                   "④ 고온·고압에서 상당한 강도를 가질 것",
+                   "⑤ 기공율·통기율이 낮을 것"]
+
+
+_DEPOSIT_SYMPTOM = ["① 장입물 강하상태가 불균일하여 슬립·행잉 유발로 조업 불안정",
+                    "② 노내 가스분포 변화에 따른 자연붕락으로 풍구 손상·노상 냉각 등 사고 유발"]
+_DEPOSIT_ACTION = ["① 노온 안정화·통기분포가 일정한 조업 유지",
+                   "② 열균열이나 환원붕괴되기 쉬운 광석 및 분율 높은 장입물을 피할 것(Na·K·Zn 제한)"]
+_COKE_BYPROD = ["① COG", "② BTX", "③ 타르", "④ 암모니아", "⑤ 벤젠", "(경유)"]
+_RAW_BLOW_DEF = ["조출선 시 일어나는 현상으로, 머드재 소성 중 발생된 가스가 분출구를 찾지 못하고 "
+                 "산소와 접촉해서 순간적으로 폭발하는 현상"]
+_RAW_BLOW_WHY = ["① 조출선한 경우", "② Lap 출선한 경우", "③ 연속 출선한 경우",
+                 "④ 머드 중 타르 성분이 많은 경우", "(⑤ 머드재 소성이 부족한 상태에서 출선)"]
+_SIDE_COOL = ["① 냉각판식", "② 스테이브식", "③ 수냉자켓식", "④ 살수식"]
+_ORE_KINDS = ["① 적철광(Hematite, 가장 많이 사용)", "② 자철광(Magnetite)",
+              "③ 갈철광(Limonite)", "④ 능철광(Siderite)"]
+_ROAST = ["광석이 녹지 않을 정도로 가열하여 화합물과 탄산염을 분해하고 "
+          "유해성분(S·As)을 제거하는 조작"]
+_CALCINE = ["철광석 중 결정수 제거와 탄산염을 분해하여 CO₂를 제거할 목적으로 가열하는 작업"]
+_FLUX_ROLE = ["① 용선과 슬래그의 분리가 잘 되도록 함",
+              "② 용융점이 낮고 유동성이 좋은 슬래그 생성(탈황능 향상)"]
+_ENDBLOW_ORDER = ["클리닝 조업 → 감척조업 → 노저출선 → 주수냉각"]
+_DROWN = ["주수냉각을 하기 위해 고로 내부에 물을 주입할 때, 기 주입된 물의 스팀화 현상에 따른 "
+          "노내압력 상승으로 물이 주입되지 않고 분무되어 역류하는 현상"]
+_DESULF_COND = ["① 슬래그 염기도를 높인다", "② 슬래그 유동성을 좋게 한다",
+                "③ 노상(용선) 온도를 높게 한다", "④ 슬래그 양을 늘린다",
+                "⑤ 황 성분이 적은 원료를 사용한다"]
+_CHILL_CAUSE = ["① 노 내 침수", "② 장시간 휴풍", "③ 이상조업(장기 걸림·대형 슬립)"]
+_CHILL_ACTION = ["① 노내 침수방지 및 냉각수 점검 철저", "② 행잉·슬립 방지",
+                 "③ 돌발 장기간 휴풍 방지"]
+_FIVE_ELEM = [
+    {"label": "C", "answers": ["강도·경도 증가, 인성 감소 및 가공 어려움"]},
+    {"label": "Mn", "answers": ["강도·경도·점성 증가, 고온가공 용이"]},
+    {"label": "Si", "answers": ["강도·경도·점성 증가, 주조성 향상"]},
+    {"label": "S", "answers": ["고온가공 시 적열취성 원인, 유동성 저해"]},
+    {"label": "P", "answers": ["상온가공 시 저온취성 원인, 연신율 감소"]},
+]
+_GAS_CLEAN = ["① 제진기(Dust Catcher)", "② 벤츄리스크러버(Venturi Scrubber)",
+              "③ 전기집진기(EP)", "(참고: 사이클론(Cyclone))"]
+_BANKING = ["원료 부족 또는 설비상의 사고로 1개월 이상 휴풍하고 문제 해결 후 "
+            "다시 조업에 들어갈 수 있게 하는 작업"]
+
+
 # 코크스 역할 — 문항마다 개수만 다르므로 같은 순서에서 앞부터 잘라 쓴다
 # (암기법 '열받은 환자, 통에서 가출' = 열원·환원제·통기성·가탄제와 같은 순서)
 _COKE_ROLE_ALL = ["① 열원", "② 환원제", "③ 통기성 인자", "④ 가탄제",
@@ -322,6 +442,135 @@ ANSWER_UNIFY = {
             "압출기가 있는 측(PS)보다 넓다. 따라서 가열할 때 폭이 넓은 CS와 폭이 좁은 PS의 "
             "노벽온도에 차가 생기도록 하여 건류를 동시에 끝내기 위함이다."]},
     ],
+    # ===== 열풍로 =====
+    "t01-1": _STOVE_2, "25-2-13": _STOVE_2,
+    "21-1-14": _STOVE_CMP, "23-2-3": _STOVE_CMP, "24-2-18": _STOVE_CMP,
+    "22-1-16": [{"label": "내연식 구조", "answers": _STOVE_IN},
+                {"label": "외연식 구조", "answers": _STOVE_OUT},
+                {"label": "송풍기 서징현상", "answers": _SURGING}],
+    "23-1-19": [{"label": "Cowper(내연식) 특징", "answers": _STOVE_IN},
+                {"label": "고로 송풍온도", "answers": ["1,100 ~ 1,300℃"]}],
+    "t01-2": [{"label": "", "answers": ["서징(Surging) 현상"]}],
+    # ===== 풍구 파손 =====
+    "t01-7": _TUYERE_DMG, "25-2-20": _TUYERE_DMG,
+    # ===== 슬래그 기능·COG =====
+    "22-2-3": [{"label": "슬래그 기능 3가지", "answers": _SLAG_ROLE},
+               {"label": "COG 주요성분 2가지", "answers": _COG_MAIN}],
+    "t12-56": [{"label": "기능 3가지", "answers": _SLAG_ROLE},
+               {"label": "COG 주성분 2가지", "answers": _COG_MAIN},
+               {"label": "참고 — 가스 조성", "answers": [
+                   "COG: H₂ 45 · CH₄ 25 · CO 10 · N₂ 8",
+                   "BFG: N₂ 55 · CO 24 · CO₂ 18 · H₂ 3 (약 800kcal/N㎥)"]}],
+    # ===== 입열·출열 =====
+    "t46-154": [{"label": "입열항목", "answers": _HEAT_IN},
+                {"label": "출열항목", "answers": _HEAT_OUT}],
+    # ===== 코크스 시험 =====
+    "t43-149": [{"label": "", "answers": _COKE_QUALITY}],
+    "21-2-20": [{"label": "", "answers": _COKE_QUALITY}],
+    "t43-150": [{"label": "", "answers": _COKE_STRENGTH}],
+    "22-1-8": [{"label": "", "answers": _COKE_STRENGTH}],
+    # ===== 치환율 =====
+    "t58-167": [{"label": "치환율", "answers": _SUBST_DEF},
+                {"label": "중유 사용 증가 시", "answers": _SUBST_PROB}],
+    "23-2-18": [{"label": "치환율 정의", "answers": _SUBST_DEF},
+                {"label": "중유 사용량 증가 시 문제점", "answers": _SUBST_PROB}],
+    # ===== 소결광 제조과정 =====
+    "t30-117": _SINTER_MAKE, "24-2-15": _SINTER_MAKE,
+    # ===== 노열 과다 =====
+    "t35-131": [{"label": "", "answers": _HOT_FURNACE}],
+    "24-1-7": [{"label": "", "answers": _HOT_FURNACE}],
+    # ===== 중장입·경장입·공장입 =====
+    "23-2-13": _CHARGE_MIX,
+    "t44-151": [{"label": "원료배합", "answers": [
+                    "일정 코크스에 대한 광석량을 증감하는 것(용선·광재를 위해 석회석 가감)"]}] + _CHARGE_MIX,
+    # ===== 철광석 구비조건 =====
+    "21-2-12": [{"label": "", "answers": _ORE_REQ}],
+    "t26-95": [{"label": "함유량 순서", "answers": ["자철광(72%) > 적철광(70%) > 갈철광 > 능철광"]},
+               {"label": "구비조건 5가지", "answers": _ORE_REQ}],
+    # ===== 조습송풍 =====
+    "21-1-11": [{"label": "정의", "answers": _HUMID_DEF},
+                {"label": "효과", "answers": _HUMID_EFF}],
+    "t32-121": [{"label": "정의", "answers": _HUMID_DEF},
+                {"label": "코크스비 저하 이유", "answers": [
+                    "수증기가 분해되어 산소가 늘어 환원이 촉진되고, 수소가 늘어 발열이 커지기 때문"]},
+                {"label": "효과", "answers": _HUMID_EFF}],
+    # ===== 소결 통기도 =====
+    "t29-112": [{"label": "", "answers": _SINTER_PERM}],
+    "23-2-16": [{"label": "", "answers": _SINTER_PERM}],
+    # ===== 탄화시간 =====
+    "t03-19": [{"label": "", "answers": _CARBONIZE_TIME}],
+    "21-2-3": [{"label": "", "answers": _CARBONIZE_TIME}],
+    # ===== 고압조업 =====
+    "t33-123": [{"label": "효과", "answers": _HIGH_PRESS_EFF},
+                {"label": "장치", "answers": _HIGH_PRESS_DEV}],
+    "21-2-17": [{"label": "장치", "answers": _HIGH_PRESS_DEV},
+                {"label": "효과", "answers": _HIGH_PRESS_EFF}],
+    # ===== 환원되기 쉬운 순서 =====
+    "t18-80": [{"label": "", "answers": _REDUCE_ORDER}],
+    "23-1-15": [{"label": "", "answers": _REDUCE_ORDER}],
+    # ===== DL 소결기 주요설비 =====
+    "t14-65": [{"label": "", "answers": _DL_EQUIP}],
+    "22-1-19": [{"label": "", "answers": _DL_EQUIP}],
+    # ===== 균일 장입장치 =====
+    "t11-52": [{"label": "", "answers": _EVEN_CHARGE}],
+    "t11-53": [{"label": "", "answers": _CHARGE_REQ}],
+    "25-1-5": [{"label": "", "answers": _CHARGE_REQ}],
+    "22-1-9": [{"label": "노정 장입 제어장치", "answers": _EVEN_CHARGE},
+               {"label": "구비조건", "answers": _CHARGE_REQ}],
+    "24-1-3": [{"label": "노정 장입 제어장치", "answers": _EVEN_CHARGE},
+               {"label": "구비조건", "answers": _CHARGE_REQ}],
+    # ===== 내화물 구비조건 =====
+    "t06-35": [{"label": "", "answers": _REFRACTORY_REQ}],
+    "24-2-13": [{"label": "", "answers": _REFRACTORY_REQ[:4]}],
+    # ===== 부착물에 의한 노황 악화 =====
+    "t35-132": [{"label": "노황부조 2가지", "answers": _DEPOSIT_SYMPTOM},
+                {"label": "대책 2가지", "answers": _DEPOSIT_ACTION}],
+    "24-1-13": [{"label": "현상", "answers": _DEPOSIT_SYMPTOM},
+                {"label": "대책", "answers": _DEPOSIT_ACTION}],
+    # ===== 코크스 부산물 =====
+    "t03-21": [{"label": "", "answers": _COKE_BYPROD[:3]}],
+    "24-1-14": [{"label": "", "answers": _COKE_BYPROD}],
+    # ===== 생취 =====
+    "t48-156": [{"label": "생취현상", "answers": _RAW_BLOW_DEF},
+                {"label": "발생이유", "answers": _RAW_BLOW_WHY}],
+    "21-2-13": [{"label": "정의", "answers": _RAW_BLOW_DEF},
+                {"label": "발생 이유", "answers": _RAW_BLOW_WHY}],
+    # ===== 노체 측면 냉각방식 =====
+    "t21-88": [{"label": "", "answers": _SIDE_COOL}],
+    "24-2-10": [{"label": "", "answers": _SIDE_COOL}],
+    # ===== 철광석 종류·구비조건 =====
+    "t26-97": [{"label": "", "answers": _ORE_KINDS}],
+    "22-1-1": [{"label": "철광석 종류", "answers": _ORE_KINDS},
+               {"label": "철광석 구비조건", "answers": _ORE_REQ}],
+    # ===== 배소·하소 =====
+    "t27-104": [{"label": "하소", "answers": _CALCINE}, {"label": "배소", "answers": _ROAST}],
+    "25-1-3": [{"label": "배소", "answers": _ROAST}, {"label": "하소", "answers": _CALCINE}],
+    # ===== 용제(Flux) =====
+    "t37-140": [{"label": "", "answers": _FLUX_ROLE}],
+    "22-1-18": [{"label": "용제 역할", "answers": _FLUX_ROLE},
+                {"label": "주로 사용하는 용제", "answers": ["석회석", "규석", "사문암"]}],
+    # ===== 종풍조업·익주현상 =====
+    "t10-47": [{"label": "", "answers": _ENDBLOW_ORDER}],
+    "t10-50": [{"label": "", "answers": _DROWN}],
+    "23-1-8": [{"label": "고로 종풍조업 작업순서", "answers": _ENDBLOW_ORDER},
+               {"label": "익주현상", "answers": _DROWN}],
+    # ===== 탈황 조건 =====
+    "t09-45": [{"label": "", "answers": _DESULF_COND[:4]}],
+    "24-1-4": [{"label": "", "answers": _DESULF_COND}],
+    # ===== 냉입 =====
+    "t59-168": [{"label": "원인 3가지", "answers": _CHILL_CAUSE},
+                {"label": "대책 2가지", "answers": _CHILL_ACTION[:2]}],
+    "25-1-13": [{"label": "원인", "answers": _CHILL_CAUSE},
+                {"label": "대책", "answers": _CHILL_ACTION}],
+    # ===== 용선 5대 원소 =====
+    "t34-125": [{"label": "", "answers": ["C, Si, Mn, P, S"]}],
+    "t34-126": _FIVE_ELEM, "21-1-12": _FIVE_ELEM,
+    # ===== 가스청정 설비 =====
+    "t54-163": [{"label": "", "answers": _GAS_CLEAN}],
+    # ===== 뱅킹 =====
+    "t16-73": [{"label": "", "answers": _BANKING}],
+    "23-2-8": [{"label": "", "answers": _BANKING}],
+    "25-1-9": [{"label": "", "answers": _BANKING}],
     # 코크스 역할(개수만 다르고 내용은 같은 순서)
     "22-1-11": _COKE_ROLE_3,
     "23-2-5": _COKE_ROLE_4, "t03-14": _COKE_ROLE_4,
@@ -341,9 +590,8 @@ ANSWER_UNIFY = {
     "t11-51": [{"label": "", "answers": _TOP_CHARGE_TYPE}],
     "21-2-4": [
         {"label": "형식", "answers": _TOP_CHARGE_TYPE},
-        {"label": "구비조건", "answers": [
-            "① 내열·내마모성 있을 것", "② 가스가 새지 않을 것", "③ 장입속도 충분할 것"]},
-        {"label": "균일하게 장입하는 장치", "answers": ["선회슈트", "무버블아머", "프로파일미터"]},
+        {"label": "구비조건", "answers": _CHARGE_REQ},
+        {"label": "균일하게 장입하는 장치", "answers": _EVEN_CHARGE},
     ],
     "t39-143": _HEARTH_DAMAGE, "22-2-16": _HEARTH_DAMAGE,
     "t30-116": _SINTER_FLUX_TOPIC,

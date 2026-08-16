@@ -10,7 +10,7 @@ from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
                       NO_IMAGE_NEEDED)
 from tables import TABLES
 from answers import ANSWER_OVERRIDES, ANSWER_UNIFY, QUESTION_TEXT_FIXES
-from extras import EXTRA_QUESTIONS
+from extras import EXTRA_QUESTIONS, QUESTION_CHOICES, DROP_QUESTIONS
 from derive import derive_keywords, normalize
 
 
@@ -32,7 +32,7 @@ def _finish(q, qid, images):
     q["imageNeeded"] = (bool(q.get("imagePlaceholders", 0)) and not images
                         and not table and qid not in NO_IMAGE_NEEDED)
     q["imageHint"] = q.get("imageHint", "")
-    q["conditions"] = q.get("conditions", [])
+    q["conditions"] = QUESTION_CHOICES.get(qid) or q.get("conditions", [])
     q.pop("imagePlaceholders", None)
     # 워드에 답이 없는 문항만 보강한다(정본은 워드)
     if qid in ANSWER_OVERRIDES and not any(p["answers"] for p in q["parts"]):
@@ -91,6 +91,12 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
             idx = next((i for i, x in enumerate(t["questions"]) if x["num"] == before),
                        len(t["questions"]))
             t["questions"].insert(idx, dict(q, parts=[dict(p) for p in q["parts"]]))
+
+    for t in topics:
+        # 회차 문제와 겹치는 문항은 뺀다
+        t["questions"] = [q for q in t["questions"]
+                          if f"{t['id']}-{q['num']}" not in DROP_QUESTIONS]
+    topics = [t for t in topics if t["questions"]]
 
     for t in topics:
         t["type"] = "topic"

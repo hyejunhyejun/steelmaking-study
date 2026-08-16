@@ -13,8 +13,8 @@ def test_structure_counts():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     assert len(d["rounds"]) == 10
     assert sum(len(r["questions"]) for r in d["rounds"]) == 200
-    assert len(d["topics"]) == 62
-    assert sum(len(t["questions"]) for t in d["topics"]) == 172  # 워드 171 + 추가 1
+    assert len(d["topics"]) == 61
+    assert sum(len(t["questions"]) for t in d["topics"]) == 171  # 워드 171 + 추가 1 - 중복 1
     assert d["rounds"][0]["label"] == "2021년 1회차"
     assert d["rounds"][-1]["label"] == "2025년 2회차"
 
@@ -98,7 +98,7 @@ def test_random_pool_has_no_duplicates():
     pool = [q["qid"] for r in d["rounds"] for q in r["questions"]]
     pool += [q["qid"] for t in d["topics"] for q in t["questions"] if not q["examRefs"]]
     assert len(pool) == len(set(pool))
-    assert len(pool) == 200 + 87  # 추가 문항 1개 포함
+    assert len(pool) == 200 + 87  # 추가 1 - 삭제분(기출표시 있어 원래 제외)
 
 
 def test_no_leftover_internal_field():
@@ -132,7 +132,6 @@ def test_real_figures_replace_svg_where_available():
     assert by_qid["t01-9"]["images"] == ["images/fig_flue.jpg"]
     assert by_qid["t07-40"]["images"] == ["images/fig_coke_rate.jpg"]
     assert by_qid["t12-58"]["images"] == ["images/photo_58.jpg"]
-    assert by_qid["t47-155"]["images"] == ["images/photo_155.jpg"]
 
 
 def test_duplicate_questions_share_one_answer():
@@ -249,3 +248,17 @@ def test_unified_groups_share_wording():
                       ("t03-21", "24-1-14")]:
         f = by[few]["parts"][0]["answers"]
         assert f == by[many]["parts"][0]["answers"][:len(f)], (few, many)
+
+
+def test_dropped_and_choices():
+    """회차와 겹치는 문항은 빠지고, 순서 나열 문제에는 보기가 붙는다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    assert "t47-155" not in by                      # 25-1-1과 중복이라 삭제
+    assert by["t18-79"]["conditions"][0].startswith("보기:")
+    assert by["t18-80"]["conditions"][0].startswith("보기:")
+    assert "적선철" not in by["t18-79"]["parts"][0]["answers"][0]
+    # 108·115번은 기출과 같은 답
+    r = {q["qid"]: q for c in d["rounds"] for q in c["questions"]}
+    assert by["t28-107"]["parts"][0]["answers"] == r["24-2-6"]["parts"][0]["answers"]
+    assert by["t30-114"]["parts"][0]["answers"] == r["23-1-11"]["parts"][0]["answers"]

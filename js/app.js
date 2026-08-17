@@ -1,4 +1,4 @@
-import { loadData, loadMnemonics, findByQid } from "./data.js";
+import { loadData, loadMnemonics, findByQid, allQuestions } from "./data.js";
 import {
   renderQuestionCard, imageBlock, tableBlock, questionTableBlock, conditionBlock,
   questionHead, addWrongButton,
@@ -8,7 +8,8 @@ import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
 import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode,
-         bumpWrong, counts, countOf, listRevive, importOnce } from "./wrongnote.js";
+         bumpWrong, counts, countOf, listRevive, importOnce,
+         sortWrongIds, getSort, setSort, SORT_MODES } from "./wrongnote.js";
 import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
@@ -22,7 +23,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-11b";
+const APP_VERSION = "2026-08-11c";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -438,8 +439,11 @@ function startRandom() {
 function renderWrongNote() {
   keyHandler = null;
   const cnt = counts(localStorage);
-  const qids = listWrong(localStorage)
-    .slice().sort((a, b) => (cnt[b] || 0) - (cnt[a] || 0));   // 많이 틀린 것부터
+  const mode = getSort(localStorage);
+  // 전체 문제 순서(회차 → 유형)를 정렬 기준으로 쓴다
+  const order = {};
+  allQuestions(DATA).forEach((q, i) => { order[q.qid] = i; });
+  const qids = sortWrongIds(listWrong(localStorage), { mode, counts: cnt, order });
   const questions = qids.map((id) => findByQid(DATA, id)).filter(Boolean);
   const collection = { id: "wrongnote", label: "오답노트", type: "wrong", questions };
   app.innerHTML = `
@@ -449,6 +453,10 @@ function renderWrongNote() {
       ${isLinked(localStorage)
         ? `<button id="sync-now">☁️ 지금 동기화</button><button id="unlink">연결 해제</button>`
         : `<button id="show-link">☁️ 기기 간 자동 동기화 연결</button>`}
+      <label class="sortbox">정렬
+        <select id="wrong-sort">${SORT_MODES.map(([k, t]) =>
+          `<option value="${k}"${k === mode ? " selected" : ""}>${t}</option>`).join("")}</select>
+      </label>
       <button id="copy-link">🔗 링크 복사</button>
       <button id="show-import">📥 가져오기</button>
       <span id="sync-state" class="mark-state"></span>
@@ -481,6 +489,10 @@ function renderWrongNote() {
          문제 아래 <b>＋ 오답노트에 추가</b> 버튼을 누르면 여기에 쌓입니다.</p>`}
     ${bottomBack("← 홈")}`;
   bindBacks(home);
+  app.querySelector("#wrong-sort")?.addEventListener("change", (e) => {
+    setSort(localStorage, e.target.value);
+    renderWrongNote();
+  });
   const state = app.querySelector("#sync-state");
   const run = async (msg) => {
     state.textContent = "동기화 중…";

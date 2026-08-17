@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode,
          bumpWrong, countOf, mergeCounts,
-         importOnce, listRemoved, listRevive } from "../js/wrongnote.js";
+         importOnce, listRemoved, listRevive,
+         sortWrongIds, getSort, setSort } from "../js/wrongnote.js";
 
 function fakeStore() {
   const m = new Map();
@@ -128,4 +129,36 @@ test("지운 문제는 합칠 때 횟수도 되살아나지 않는다", () => {
   removeWrong(s, "a");
   mergeCounts(s, { a: 9 });
   assert.equal(countOf(s, "a"), 0);
+});
+
+test("정렬: 많이 틀린 순 · 같은 횟수면 문제 순서로", () => {
+  const order = { a: 2, b: 0, c: 1 };
+  const cnts = { a: 1, b: 1, c: 5 };
+  assert.deepEqual(
+    sortWrongIds(["a", "b", "c"], { mode: "count", counts: cnts, order }),
+    ["c", "b", "a"]);
+});
+
+test("정렬: 최근 담은 순은 나중에 담은 것이 위로", () => {
+  assert.deepEqual(sortWrongIds(["a", "b", "c"], { mode: "recent" }), ["c", "b", "a"]);
+});
+
+test("정렬: 문제 순서는 회차·번호 차례대로", () => {
+  const order = { a: 2, b: 0, c: 1 };
+  assert.deepEqual(sortWrongIds(["a", "b", "c"], { mode: "order", order }), ["b", "c", "a"]);
+});
+
+test("정렬 선택은 저장되고, 모르는 값이면 기본값", () => {
+  const s = fakeStore();
+  assert.equal(getSort(s), "count");
+  setSort(s, "recent");
+  assert.equal(getSort(s), "recent");
+  s.setItem("jeseon:wrongSort", "엉뚱한값");
+  assert.equal(getSort(s), "count");
+});
+
+test("정렬해도 원본 목록은 그대로다", () => {
+  const src = ["a", "b", "c"];
+  sortWrongIds(src, { mode: "recent" });
+  assert.deepEqual(src, ["a", "b", "c"]);
 });

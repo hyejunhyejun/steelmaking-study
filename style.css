@@ -260,3 +260,10 @@ button.reveal-part:hover { border-color: var(--accent); color: var(--accent); }
   border: 1px solid var(--badge-border); font-size: .78rem; font-weight: 700;
 }
 .times.hot { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+.sortbox { display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .85rem; color: var(--muted); }
+.sortbox select {
+  padding: .3rem .4rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); color: var(--fg); font-size: .85rem;
+}

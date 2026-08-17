@@ -114,6 +114,32 @@ export function importOnce(store, qids, code) {
   return list;
 }
 
+/* --------- 정렬 --------- */
+const SORT = "jeseon:wrongSort";
+export const SORT_MODES = [
+  ["count", "많이 틀린 순"],
+  ["recent", "최근 담은 순"],
+  ["order", "문제 순서(회차·번호)"],
+];
+
+export function getSort(store) {
+  const v = store.getItem(SORT);
+  return SORT_MODES.some(([k]) => k === v) ? v : "count";
+}
+export function setSort(store, mode) { store.setItem(SORT, mode); }
+
+// qids는 담은 순서(앞이 먼저 담은 것), order는 {qid: 전체 문제 순서}
+export function sortWrongIds(qids, { mode = "count", counts = {}, order = {} } = {}) {
+  const list = qids.slice();
+  if (mode === "recent") return list.reverse();
+  if (mode === "order") {
+    return list.sort((a, b) => (order[a] ?? 1e9) - (order[b] ?? 1e9));
+  }
+  // 많이 틀린 순 — 같은 횟수면 문제 순서로 (매번 뒤바뀌지 않게)
+  return list.sort((a, b) =>
+    (counts[b] || 0) - (counts[a] || 0) || (order[a] ?? 1e9) - (order[b] ?? 1e9));
+}
+
 export function parseWrongCode(text) {
   return String(text).trim().replace(/^.*#w=/, "")
     .split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);

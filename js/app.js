@@ -23,7 +23,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-11c";
+const APP_VERSION = "2026-08-11d";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)

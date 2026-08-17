@@ -14,7 +14,7 @@ def test_structure_counts():
     assert len(d["rounds"]) == 10
     assert sum(len(r["questions"]) for r in d["rounds"]) == 200
     assert len(d["topics"]) == 61
-    assert sum(len(t["questions"]) for t in d["topics"]) == 171  # 워드 171 + 추가 1 - 중복 1
+    assert sum(len(t["questions"]) for t in d["topics"]) == 167  # 워드 171 + 추가 1 - 삭제 5
     assert d["rounds"][0]["label"] == "2021년 1회차"
     assert d["rounds"][-1]["label"] == "2025년 2회차"
 
@@ -60,10 +60,7 @@ def test_svg_diagrams_are_attached():
     """직접 제작한 SVG 도표가 해당 문제에 연결된다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by_qid = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
-    expected = {
-        "t05-33": "diagrams/boudouard-pressure.svg",
-        "t12-57": "diagrams/slag-ternary.svg",
-        }
+    expected = {"t12-57": "diagrams/slag-ternary.svg"}
     for qid, path in expected.items():
         assert by_qid[qid]["images"] == [path], qid
         assert by_qid[qid]["imageNeeded"] is False, qid
@@ -98,7 +95,7 @@ def test_random_pool_has_no_duplicates():
     pool = [q["qid"] for r in d["rounds"] for q in r["questions"]]
     pool += [q["qid"] for t in d["topics"] for q in t["questions"] if not q["examRefs"]]
     assert len(pool) == len(set(pool))
-    assert len(pool) == 200 + 87  # 추가 1 - 삭제분(기출표시 있어 원래 제외)
+    assert len(pool) == 285
 
 
 def test_no_leftover_internal_field():
@@ -272,8 +269,28 @@ def test_coke_rate_and_dephos_answers():
     assert coke[0]["label"] == "Bosh, Belly부"
     assert "Carbon Solution Loss" in coke[0]["answers"][0]
     assert "Carbon Deposition" in coke[1]["answers"][0]
-    # 같은 것을 묻는 43·46번은 답이 같고 반응식이 2개씩이다
-    assert by["t09-43"]["parts"] == by["t09-46"]["parts"]
+    assert "t09-46" not in by          # 43번과 같은 문제라 삭제
     eqs = by["t09-43"]["parts"]
     assert eqs[0]["answers"] == ["2P + 5O → P₂O₅", "P₂O₅ + 5C → 2P + 5CO"]
     assert eqs[2]["answers"] == ["S + CaO = CaS + O", "FeS + CaO + C = CaS + Fe + CO"]
+
+
+def test_user_edits_2026_08():
+    """사용자 수정분 반영 + 기출과 통일 유지."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    a = lambda qid: [p["answers"] for p in by[qid]["parts"]]
+    assert by["t01-9"]["parts"][1]["answers"] == [
+        "가열할 때 폭이 넓은 CS와 폭이 좁은 PS의 노벽온도에 차이가 생기도록 하여 "
+        "건류를 동시에 끝내기 위함"]
+    assert by["t15-72"]["parts"][0]["answers"] == ["행잉", "드롭", "슬립", "냉입"]
+    assert len(by["t18-78"]["parts"]) == 3          # 소문제 3개로 늘었다
+    assert by["t20-84"]["parts"][1]["answers"] == ["SC법", "XR법", "Tecnored법"]
+    assert by["t57-166"]["conditions"] == ["보기: HBV, BGV, EV, SV, GSV"]
+    # 사용자가 바꾼 답도 기출과 계속 같아야 한다
+    assert a("t14-66") == a("22-2-9")
+    assert by["t26-100"]["parts"][0]["answers"] == by["24-1-1"]["parts"][1]["answers"]
+    assert a("t29-112") == a("23-2-16")
+    # 삭제분
+    for qid in ("t05-33", "t09-46", "t37-136", "t40-145", "t47-155"):
+        assert qid not in by, qid

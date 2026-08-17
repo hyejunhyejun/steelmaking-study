@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-08-16",
+    "generatedAt": "2026-08-17",
     "source": "docx v2"
   },
   "rounds": [
@@ -17397,34 +17397,29 @@
           "imageHint": "",
           "parts": [
             {
-              "label": "Bosh·Belly부",
+              "label": "Bosh, Belly부",
               "answers": [
-                "연소대가 가까워 공급되는 Coke가 많고 고온영역으로서 불안정영역으로, 발생된 CO₂ 가스의 Carbon Solution Loss 반응에 의해 Coke가 소모"
+                "Carbon Solution Loss 반응이 일어나며, 고온영역에서 일어남으로 반응속도가 비교적 빠르다"
               ],
               "keywords": [
                 {
-                  "label": "연소대가 가까워 공급되는 Coke가 많고 고온영역으로서 불안정영역으로",
+                  "label": "Carbon Solution Loss 반응이 일어나며",
                   "terms": [
-                    "연소대",
-                    "가까워",
-                    "공급",
-                    "Coke가",
-                    "많고",
-                    "고온영역",
-                    "불안정영역"
-                  ]
-                },
-                {
-                  "label": "발생된 CO₂ 가스의 Carbon Solution Loss 반응에 의해 Coke가 소모",
-                  "terms": [
-                    "발생된",
-                    "CO₂",
-                    "가스",
                     "Carbon",
                     "Solution",
                     "Loss",
                     "반응",
-                    "Coke가"
+                    "일어나"
+                  ]
+                },
+                {
+                  "label": "고온영역에서 일어남으로 반응속도가 비교적 빠르다",
+                  "terms": [
+                    "고온영역",
+                    "일어남",
+                    "반응속도",
+                    "비교적",
+                    "빠르다"
                   ]
                 }
               ]
@@ -17432,20 +17427,25 @@
             {
               "label": "Shaft부",
               "answers": [
-                "연소대로부터 멀리 떨어져 공급되는 Coke가 적고 직접환원반응에 의해 일어난다"
+                "Carbon Deposition 반응이 일어나며, 저온영역에서 일어남으로 반응속도가 느리다"
               ],
               "keywords": [
                 {
-                  "label": "연소대로부터 멀리 떨어져 공급되는 Coke가 적고 직접환원반응에 의해 일어난다",
+                  "label": "Carbon Deposition 반응이 일어나며",
                   "terms": [
-                    "연소대로",
-                    "멀리",
-                    "떨어져",
-                    "공급",
-                    "Coke가",
-                    "적고",
-                    "직접환원반응",
-                    "일어난다"
+                    "Carbon",
+                    "Deposition",
+                    "반응",
+                    "일어나"
+                  ]
+                },
+                {
+                  "label": "저온영역에서 일어남으로 반응속도가 느리다",
+                  "terms": [
+                    "저온영역",
+                    "일어남",
+                    "반응속도",
+                    "느리다"
                   ]
                 }
               ]
@@ -17601,42 +17601,92 @@
           "imageHint": "",
           "parts": [
             {
-              "label": "탈인",
+              "label": "탈인 반응식",
               "answers": [
-                "반응식 2P+5O→P₂O₅ / 강환원성 분위기라 복인현상으로 탈인 어려움"
+                "2P + 5O → P₂O₅",
+                "P₂O₅ + 5C → 2P + 5CO"
               ],
               "keywords": [
                 {
-                  "label": "반응식 2P+5O→P₂O₅ / 강환원성 분위기라 복인현상으로 탈인 어려움",
+                  "label": "2P + 5O → P₂O₅",
                   "terms": [
-                    "반응식",
-                    "2P+5O→P₂O₅",
-                    "강환원성",
-                    "분위기라",
-                    "복인현상",
-                    "탈인",
-                    "어려움"
+                    "2P",
+                    "5O",
+                    "P₂O₅"
+                  ]
+                },
+                {
+                  "label": "P₂O₅ + 5C → 2P + 5CO",
+                  "terms": [
+                    "P₂O₅",
+                    "5C",
+                    "2P",
+                    "5CO"
                   ]
                 }
               ]
             },
             {
-              "label": "탈황",
+              "label": "탈인이 잘 안 일어나는 이유",
               "answers": [
-                "반응식 S+CaO→CaS+O / 온도·염기도·슬래그비와 상관 커 강환원성에서 유리"
+                "로내가 강환원성 분위기이므로 복인현상 등에 의해 탈인 반응이 어렵다"
               ],
               "keywords": [
                 {
-                  "label": "반응식 S+CaO→CaS+O / 온도·염기도·슬래그비와 상관 커 강환원성에서 유리",
+                  "label": "로내가 강환원성 분위기이므로 복인현상 등에 의해 탈인 반응이 어렵다",
                   "terms": [
-                    "반응식",
-                    "S+CaO→CaS+O",
-                    "온도",
-                    "염기",
-                    "슬래그비",
-                    "상관",
+                    "로내",
                     "강환원성",
-                    "유리"
+                    "분위기이므",
+                    "복인현상",
+                    "등에",
+                    "의해",
+                    "탈인",
+                    "어렵다"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "탈황 반응식",
+              "answers": [
+                "S + CaO = CaS + O",
+                "FeS + CaO + C = CaS + Fe + CO"
+              ],
+              "keywords": [
+                {
+                  "label": "S + CaO = CaS + O",
+                  "terms": [
+                    "CaO",
+                    "CaS"
+                  ]
+                },
+                {
+                  "label": "FeS + CaO + C = CaS + Fe + CO",
+                  "terms": [
+                    "FeS",
+                    "CaO",
+                    "CaS",
+                    "Fe",
+                    "CO"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "탈황이 잘 일어나는 이유",
+              "answers": [
+                "노상부에서 Slag-metal 반응으로 탈황이 잘된다"
+              ],
+              "keywords": [
+                {
+                  "label": "노상부에서 Slag-metal 반응으로 탈황이 잘된다",
+                  "terms": [
+                    "노상부",
+                    "Slag-metal",
+                    "반응",
+                    "탈황",
+                    "잘된다"
                   ]
                 }
               ]
@@ -17646,6 +17696,7 @@
           "images": [],
           "imageNeeded": false,
           "conditions": [],
+          "unified": true,
           "topicId": "t09",
           "topicLabel": "탈인 · 탈황",
           "stars": 1,
@@ -17854,39 +17905,92 @@
           "imageHint": "",
           "parts": [
             {
-              "label": "탈인",
+              "label": "탈인 반응식",
               "answers": [
-                "P₂O₅+5C→2P+5CO / 산화도 높아야 하나 고로는 환원분위기라 어려움"
+                "2P + 5O → P₂O₅",
+                "P₂O₅ + 5C → 2P + 5CO"
               ],
               "keywords": [
                 {
-                  "label": "P₂O₅+5C→2P+5CO / 산화도 높아야 하나 고로는 환원분위기라 어려움",
+                  "label": "2P + 5O → P₂O₅",
                   "terms": [
-                    "P₂O₅+5C→2P+5CO",
-                    "산화",
-                    "높아야",
-                    "하나",
-                    "고로",
-                    "환원분위기라",
-                    "어려움"
+                    "2P",
+                    "5O",
+                    "P₂O₅"
+                  ]
+                },
+                {
+                  "label": "P₂O₅ + 5C → 2P + 5CO",
+                  "terms": [
+                    "P₂O₅",
+                    "5C",
+                    "2P",
+                    "5CO"
                   ]
                 }
               ]
             },
             {
-              "label": "탈황",
+              "label": "탈인이 잘 안 일어나는 이유",
               "answers": [
-                "FeS+CaO+C→CaS+Fe+CO / 노상부 Slag-metal 반응으로 양호"
+                "로내가 강환원성 분위기이므로 복인현상 등에 의해 탈인 반응이 어렵다"
               ],
               "keywords": [
                 {
-                  "label": "FeS+CaO+C→CaS+Fe+CO / 노상부 Slag-metal 반응으로 양호",
+                  "label": "로내가 강환원성 분위기이므로 복인현상 등에 의해 탈인 반응이 어렵다",
                   "terms": [
-                    "FeS+CaO+C→CaS+Fe+CO",
+                    "로내",
+                    "강환원성",
+                    "분위기이므",
+                    "복인현상",
+                    "등에",
+                    "의해",
+                    "탈인",
+                    "어렵다"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "탈황 반응식",
+              "answers": [
+                "S + CaO = CaS + O",
+                "FeS + CaO + C = CaS + Fe + CO"
+              ],
+              "keywords": [
+                {
+                  "label": "S + CaO = CaS + O",
+                  "terms": [
+                    "CaO",
+                    "CaS"
+                  ]
+                },
+                {
+                  "label": "FeS + CaO + C = CaS + Fe + CO",
+                  "terms": [
+                    "FeS",
+                    "CaO",
+                    "CaS",
+                    "Fe",
+                    "CO"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "탈황이 잘 일어나는 이유",
+              "answers": [
+                "노상부에서 Slag-metal 반응으로 탈황이 잘된다"
+              ],
+              "keywords": [
+                {
+                  "label": "노상부에서 Slag-metal 반응으로 탈황이 잘된다",
+                  "terms": [
                     "노상부",
                     "Slag-metal",
                     "반응",
-                    "양호"
+                    "탈황",
+                    "잘된다"
                   ]
                 }
               ]
@@ -17896,6 +18000,7 @@
           "images": [],
           "imageNeeded": false,
           "conditions": [],
+          "unified": true,
           "topicId": "t09",
           "topicLabel": "탈인 · 탈황",
           "stars": 3,

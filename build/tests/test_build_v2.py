@@ -262,3 +262,18 @@ def test_dropped_and_choices():
     r = {q["qid"]: q for c in d["rounds"] for q in c["questions"]}
     assert by["t28-107"]["parts"][0]["answers"] == r["24-2-6"]["parts"][0]["answers"]
     assert by["t30-114"]["parts"][0]["answers"] == r["23-1-11"]["parts"][0]["answers"]
+
+
+def test_coke_rate_and_dephos_answers():
+    """40번 Coke 연소속도차·43번 탈인탈황은 정리노트 원문대로."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    coke = by["t07-40"]["parts"]
+    assert coke[0]["label"] == "Bosh, Belly부"
+    assert "Carbon Solution Loss" in coke[0]["answers"][0]
+    assert "Carbon Deposition" in coke[1]["answers"][0]
+    # 같은 것을 묻는 43·46번은 답이 같고 반응식이 2개씩이다
+    assert by["t09-43"]["parts"] == by["t09-46"]["parts"]
+    eqs = by["t09-43"]["parts"]
+    assert eqs[0]["answers"] == ["2P + 5O → P₂O₅", "P₂O₅ + 5C → 2P + 5CO"]
+    assert eqs[2]["answers"] == ["S + CaO = CaS + O", "FeS + CaO + C = CaS + Fe + CO"]

@@ -426,13 +426,20 @@ _PREHEAT_MERIT2 = [
 ]
 
 _COKE_BURN_RATE = [
-    {"label": "Bosh·Belly부", "answers": [
-        "연소대가 가까워 공급되는 Coke가 많고 고온영역으로서 불안정영역으로, "
-        "발생된 CO₂ 가스의 Carbon Solution Loss 반응에 의해 Coke가 소모",
-    ]},
+    {"label": "Bosh, Belly부", "answers": [
+        "Carbon Solution Loss 반응이 일어나며, 고온영역에서 일어남으로 반응속도가 비교적 빠르다"]},
     {"label": "Shaft부", "answers": [
-        "연소대로부터 멀리 떨어져 공급되는 Coke가 적고 직접환원반응에 의해 일어난다",
-    ]},
+        "Carbon Deposition 반응이 일어나며, 저온영역에서 일어남으로 반응속도가 느리다"]},
+]
+
+# 탈인·탈황 — t09-43과 t09-46이 같은 것을 묻는다(반응식 2개씩)
+_DEPHOS_DESULF = [
+    {"label": "탈인 반응식", "answers": ["2P + 5O → P₂O₅", "P₂O₅ + 5C → 2P + 5CO"]},
+    {"label": "탈인이 잘 안 일어나는 이유", "answers": [
+        "로내가 강환원성 분위기이므로 복인현상 등에 의해 탈인 반응이 어렵다"]},
+    {"label": "탈황 반응식", "answers": ["S + CaO = CaS + O", "FeS + CaO + C = CaS + Fe + CO"]},
+    {"label": "탈황이 잘 일어나는 이유", "answers": [
+        "노상부에서 Slag-metal 반응으로 탈황이 잘된다"]},
 ]
 
 
@@ -449,6 +456,7 @@ ANSWER_UNIFY = {
     "t06-35": _REFRACTORY_SPEC,
     "t07-38": _SHAFT_BOSH_ANGLE, "22-2-10": _SHAFT_BOSH_ANGLE,
     "t07-40": _COKE_BURN_RATE,
+    "t09-43": _DEPHOS_DESULF, "t09-46": _DEPHOS_DESULF,
     "t01-9": [
         {"label": "온도차 ⓐ의 명칭", "answers": ["열내온도 편차(60℃)"]},
         {"label": "온도차를 두는 이유", "answers": [

@@ -8,7 +8,7 @@ import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom } from "./random.js";
 import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode,
-         bumpWrong, counts, countOf } from "./wrongnote.js";
+         bumpWrong, counts, countOf, listRevive, importOnce } from "./wrongnote.js";
 import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
@@ -22,7 +22,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-11a";
+const APP_VERSION = "2026-08-11b";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -545,7 +545,8 @@ function noteChanged() {
 async function syncNow() {
   if (!isLinked(localStorage)) return null;
   const merged = await gistSync(localStorage, listWrong(localStorage),
-                               listRemoved(localStorage), counts(localStorage));
+                               listRemoved(localStorage), counts(localStorage),
+                               listRevive(localStorage));
   if (merged) localStorage.setItem("jeseon:wrongnote", JSON.stringify(merged));
   return merged;
 }
@@ -642,7 +643,8 @@ app.addEventListener("click", (e) => {
 resetStorageIfStale();
 // 다른 기기에서 보낸 오답노트 링크(#w=...)로 들어오면 합쳐 준다
 if (location.hash.startsWith("#w=")) {
-  mergeWrong(localStorage, parseWrongCode(location.hash));
+  const code = location.hash.slice(3);
+  importOnce(localStorage, parseWrongCode(location.hash), code);
   history.replaceState(null, "", location.pathname);
 }
 setupTheme();

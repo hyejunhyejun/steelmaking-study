@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode,
-         bumpWrong, countOf, mergeCounts } from "../js/wrongnote.js";
+         bumpWrong, countOf, mergeCounts,
+         importOnce, listRemoved, listRevive } from "../js/wrongnote.js";
 
 function fakeStore() {
   const m = new Map();
@@ -64,12 +65,30 @@ test("링크·쉼표·공백 어떤 형태로 붙여넣어도 읽는다", () => 
   assert.deepEqual(parseWrongCode(" 21-1-4  t12-58 "), ["21-1-4", "t12-58"]);
 });
 
-test("내가 지운 문제는 링크로 다시 들어와도 되살아나지 않는다", () => {
+test("다른 기기 링크로 가져오면 예전에 지운 문제도 다시 담긴다", () => {
   const s = fakeStore();
   addWrong(s, "21-1-1");
-  removeWrong(s, "21-1-1");
-  mergeWrong(s, ["21-1-1", "21-1-2"]);   // 예전 링크를 다시 열었을 때
+  removeWrong(s, "21-1-1");            // 이 기기에서 뺐던 문제
+  importOnce(s, ["21-1-1", "21-1-2"], "code-A");
+  assert.deepEqual(listWrong(s), ["21-1-1", "21-1-2"]);
+  assert.deepEqual(listRemoved(s), []);          // 지운 기록이 풀린다
+  assert.deepEqual(listRevive(s), ["21-1-1"]);   // 원격에도 풀어달라고 표시
+});
+
+test("같은 링크를 다시 열어도(북마크) 지운 문제가 되살아나지 않는다", () => {
+  const s = fakeStore();
+  importOnce(s, ["21-1-1", "21-1-2"], "code-A");
+  removeWrong(s, "21-1-1");                       // 보고 나서 뺌
+  assert.equal(importOnce(s, ["21-1-1", "21-1-2"], "code-A"), null);  // 새로고침
   assert.deepEqual(listWrong(s), ["21-1-2"]);
+});
+
+test("새 링크는 코드가 다르므로 다시 가져온다", () => {
+  const s = fakeStore();
+  importOnce(s, ["21-1-1"], "code-A");
+  removeWrong(s, "21-1-1");
+  importOnce(s, ["21-1-1", "21-1-3"], "code-B");
+  assert.deepEqual(listWrong(s), ["21-1-1", "21-1-3"]);
 });
 
 test("누를 때마다 틀린 횟수가 1씩 올라간다", () => {

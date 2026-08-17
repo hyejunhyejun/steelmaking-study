@@ -19,7 +19,8 @@ async function findGistId(token) {
 
 // 원격과 로컬을 합쳐 저장하고 합친 목록을 돌려준다.
 // 담은 것은 합집합, 지운 것은 removed 목록으로 남겨 어느 기기에서도 되살아나지 않게 한다.
-export async function gistSync(store, localList, localRemoved = [], localCounts = {}) {
+export async function gistSync(store, localList, localRemoved = [], localCounts = {},
+                               revive = []) {
   const token = store.getItem(TOKEN);
   if (!token) return null;
   let id = store.getItem(GIST) || (await findGistId(token));
@@ -36,6 +37,7 @@ export async function gistSync(store, localList, localRemoved = [], localCounts 
   }
   // 양쪽에서 담은 건 모두 살리고, 어느 쪽에서든 지운 건 뺀다
   const gone = new Set([...remoteGone, ...localRemoved]);
+  for (const q of revive) gone.delete(q);   // 다시 담은 건 지운 기록에서 푼다
   const merged = [...new Set([...remote, ...localList])].filter((q) => !gone.has(q));
   // 틀린 횟수는 더 많이 틀린 기기 쪽을 살린다
   const mergedCounts = {};
@@ -53,6 +55,7 @@ export async function gistSync(store, localList, localRemoved = [], localCounts 
   if (!res.ok) throw new Error(`저장 실패 ${res.status}`);
   if (!id) store.setItem(GIST, (await res.json()).id);
   store.setItem("jeseon:wrongRemoved", JSON.stringify([...gone]));
+  store.removeItem("jeseon:wrongRevive");   // 원격에 반영됐으니 표시 해제
   store.setItem("jeseon:wrongCount", JSON.stringify(mergedCounts));
   return merged;
 }

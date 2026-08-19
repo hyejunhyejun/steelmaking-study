@@ -303,3 +303,15 @@ def test_109_matches_exam_24_1_13():
     assert by["t29-110"]["parts"][0]["answers"] == by["24-1-13"]["parts"][0]["answers"]
     # 108번(부착물)은 별개 문항이라 그대로 둔다
     assert by["t29-109"]["parts"][0]["answers"][0] == "① 노정가스 불균일"
+
+
+def test_furnace_part_labels_match_exam():
+    """37번 도해의 부위 명칭은 같은 그림을 쓰는 기출 21-1-4·23-2-6과 같은 답."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    names = by["t07-37"]["parts"][0]["answers"]
+    assert names == by["21-1-4"]["parts"][0]["answers"]
+    assert names == by["23-2-6"]["parts"][0]["answers"]
+    assert names[0] == "가. 노구" and names[-1] == "바. 레이스웨이"
+    # 나머지 소문제는 그대로
+    assert by["t07-37"]["parts"][2]["answers"] == ["출선구에서 장입기준선까지의 용적"]

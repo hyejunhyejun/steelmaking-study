@@ -294,3 +294,12 @@ def test_user_edits_2026_08():
     # 삭제분
     for qid in ("t05-33", "t09-46", "t37-136", "t40-145", "t47-155"):
         assert qid not in by, qid
+
+
+def test_109_matches_exam_24_1_13():
+    """109번(통기성 불량 시 현상)은 기출 24-1-13의 현상과 같은 답."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    assert by["t29-110"]["parts"][0]["answers"] == by["24-1-13"]["parts"][0]["answers"]
+    # 108번(부착물)은 별개 문항이라 그대로 둔다
+    assert by["t29-109"]["parts"][0]["answers"][0] == "① 노정가스 불균일"

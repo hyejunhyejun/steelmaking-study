@@ -35,7 +35,7 @@ def test_topic_image_from_map():
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     t07 = next(t for t in d["topics"] if t["id"] == "t07")
     q = next(q for q in t07["questions"] if q["qid"] == "t07-37")
-    assert q["images"] == ["images/21-1_0.jpg"]
+    assert q["images"] == ["images/fig_furnace_form.png"]
     assert q["imageNeeded"] is False
 
 
@@ -307,13 +307,33 @@ def test_108_matches_exam_24_1_13():
     assert "슬립" in by["t29-110"]["parts"][0]["answers"][0]
 
 
-def test_furnace_part_labels_match_exam():
-    """37번 도해의 부위 명칭은 같은 그림을 쓰는 기출 21-1-4·23-2-6과 같은 답."""
+def test_furnace_figures_are_separate_questions():
+    """37번은 부위 명칭 도해, 21-1-4·23-2-6은 구역(가~바) 도해로 서로 다르다."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
-    names = by["t07-37"]["parts"][0]["answers"]
-    assert names == by["21-1-4"]["parts"][0]["answers"]
-    assert names == by["23-2-6"]["parts"][0]["answers"]
-    assert names[0] == "가. 노구" and names[-1] == "바. 레이스웨이"
-    # 나머지 소문제는 그대로
+    assert by["t07-37"]["parts"][0]["answers"] == [
+        "노구, 노흉, 노복, 보시, 노상, 출선구, 노저"]
     assert by["t07-37"]["parts"][2]["answers"] == ["출선구에서 장입기준선까지의 용적"]
+    # 구역 도해 두 문항끼리는 같은 답
+    assert by["21-1-4"]["parts"][0]["answers"] == by["23-2-6"]["parts"][0]["answers"]
+    assert by["21-1-4"]["parts"][0]["answers"][0] == "가. 노구"
+
+
+def test_masked_figure_has_no_answers_baked_in():
+    """문제용 도해는 부위 명칭 자리가 지워진 파일을 쓴다."""
+    import os
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    path = by["t07-37"]["images"][0]
+    assert path.endswith("fig_furnace_form.png")      # 선 그림이라 PNG
+    assert os.path.exists(os.path.join(DATA, *path.split("/")))
+
+
+def test_cold_pig_extra_subquestion():
+    """62번은 기출 22-1-13에 없는 '개공기 도구' 소문제를 더 갖는다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    t, r = by["t13-63"]["parts"], by["22-1-13"]["parts"]
+    assert len(t) == 3 and len(r) == 2
+    assert [p["answers"] for p in t[:2]] == [p["answers"] for p in r]  # 앞 2개는 같은 답
+    assert t[2]["answers"] == ["① 에어해머", "② 에어모터드릴", "③ 산소절단기"]

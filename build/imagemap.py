@@ -21,7 +21,7 @@ TOPIC_IMAGES = {
     "t07-40": ["images/fig_coke_rate.jpg"],  # 정압레벨별 Coke 연소속도 표
 
     # --- 엑셀에서 가져온 그림(답안 라벨 체계까지 일치 확인) ---
-    "t07-37": ["images/21-1_0.jpg"],   # 고로 부위/구역 명칭 (가~바)
+    "t07-37": ["images/fig_furnace_form.png"],  # 고로 부위 명칭(빈칸)·높이·내용적
     "t11-54": ["images/24-2_2.jpg"],   # 노정장입물 형상·가스온도·성분 4패널
     "t26-103": ["images/25-2_1.jpg"],  # Gieseler 시성곡선 a·b·c
 }

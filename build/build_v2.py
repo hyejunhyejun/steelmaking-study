@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import docx
 from parse_docx import parse_rounds_doc, parse_photos_doc
 from images import (extract_images, extract_docx_photos, extract_note_figures,
-                    extract_extra_figures)
+                    extract_extra_figures, extract_masked_figures)
 from imagemap import (TOPIC_IMAGES, ROUND_IMAGE_OVERRIDES, DOCX_PHOTO_NUMS,
                       NO_IMAGE_NEEDED)
 from tables import TABLES
@@ -84,6 +84,9 @@ def build(rounds_docx, photos_docx, xlsx, out_dir):
     # 사용자가 직접 준 깨끗한 원본 그림
     extract_extra_figures(os.path.join(os.path.dirname(photos_docx), "추가그림"),
                           os.path.join(out_dir, "images"))
+    # 답이 적힌 도해는 그 자리를 비워 문제용으로 만든다
+    extract_masked_figures(os.path.join(os.path.dirname(photos_docx), "추가그림"),
+                           os.path.join(out_dir, "images"))
 
     # 워드에 없는 추가 문항을 지정 위치에 끼워넣는다
     for t in topics:

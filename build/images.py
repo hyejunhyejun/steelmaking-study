@@ -254,6 +254,44 @@ EXTRA_FIGURES = {
 # 위아래에 딸려온 글자 조각을 떼어낼 비율 (좌,상,우,하)
 EXTRA_CROPS = {"fig_coke_rate": (0, 0.10, 1, 1)}
 
+# 답이 적혀 있는 도해는 그 자리를 지우고 빈칸으로 남긴다.
+# {파일: (자를 영역, [지울 영역...])} — 좌표는 원본 픽셀 기준
+MASKED_FIGURES = {
+    "att_furnace.png": ("fig_furnace_form", (60, 5, 335, 428), [
+        (30, 10, 108, 30),    # 노구
+        (32, 164, 106, 186),  # 노흉
+        (32, 269, 106, 291),  # 노복
+        (32, 306, 100, 327),  # 보시
+        (32, 351, 112, 371),  # 노상
+        (34, 398, 112, 419),  # 노저
+    ]),
+}
+
+
+def extract_masked_figures(extra_dir, out_dir):
+    """도해에서 답(부위 명칭)을 지우고 빈칸 상자로 바꿔 PNG로 저장한다.
+
+    선 그림이라 JPEG로 저장하면 글자·선이 뭉개져 PNG를 쓴다.
+    """
+    from PIL import ImageDraw
+    if not os.path.isdir(extra_dir):
+        return {}
+    os.makedirs(out_dir, exist_ok=True)
+    made = {}
+    for fname, (name, box, masks) in MASKED_FIGURES.items():
+        src = os.path.join(extra_dir, fname)
+        if not os.path.exists(src):
+            continue
+        im = Image.open(src).convert("RGB").crop(box)
+        dr = ImageDraw.Draw(im)
+        for m in masks:
+            dr.rectangle(m, fill=(255, 255, 255))
+            dr.rectangle(m, outline=(170, 170, 170), width=1)
+        im = im.resize((im.width * 3, im.height * 3), Image.LANCZOS)
+        im.save(os.path.join(out_dir, name + ".png"), "PNG", optimize=True)
+        made[name] = f"images/{name}.png"
+    return made
+
 
 def extract_extra_figures(extra_dir, out_dir):
     """사용자가 준 원본 그림을 트림·업스케일해 저장하고 {이름: 상대경로} 반환."""

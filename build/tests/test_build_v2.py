@@ -296,13 +296,15 @@ def test_user_edits_2026_08():
         assert qid not in by, qid
 
 
-def test_109_matches_exam_24_1_13():
-    """109번(통기성 불량 시 현상)은 기출 24-1-13의 현상과 같은 답."""
+def test_108_matches_exam_24_1_13():
+    """108번(노내 부착물 생성 시)은 기출 24-1-13과 같은 답."""
     d = build(ROUNDS, PHOTOS, XLSX, DATA)
     by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
-    assert by["t29-110"]["parts"][0]["answers"] == by["24-1-13"]["parts"][0]["answers"]
-    # 108번(부착물)은 별개 문항이라 그대로 둔다
-    assert by["t29-109"]["parts"][0]["answers"][0] == "① 노정가스 불균일"
+    a = lambda qid: [p["answers"] for p in by[qid]["parts"]]
+    assert a("t29-109") == a("24-1-13")
+    # 109번(통기성 불량)은 별개 문항이라 원래 답 그대로
+    assert "걸림" in by["t29-110"]["parts"][0]["answers"][0]
+    assert "슬립" in by["t29-110"]["parts"][0]["answers"][0]
 
 
 def test_furnace_part_labels_match_exam():

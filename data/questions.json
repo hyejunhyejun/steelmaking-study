@@ -1761,7 +1761,7 @@
               "answers": [
                 "① Mckee식",
                 "② Bell-Less식(벨리스식)",
-                "③ Bell Valve Seal식"
+                "③ 2 Bell Valve Seal식"
               ],
               "keywords": [
                 {
@@ -1778,7 +1778,7 @@
                   ]
                 },
                 {
-                  "label": "Bell Valve Seal식",
+                  "label": "2 Bell Valve Seal식",
                   "terms": [
                     "Bell",
                     "Valve",
@@ -18037,7 +18037,7 @@
               "answers": [
                 "① Mckee식",
                 "② Bell-Less식(벨리스식)",
-                "③ Bell Valve Seal식"
+                "③ 2 Bell Valve Seal식"
               ],
               "keywords": [
                 {
@@ -18054,7 +18054,7 @@
                   ]
                 },
                 {
-                  "label": "Bell Valve Seal식",
+                  "label": "2 Bell Valve Seal식",
                   "terms": [
                     "Bell",
                     "Valve",
@@ -21159,6 +21159,65 @@
           "topicLabel": "철광석",
           "stars": 6,
           "groupId": "g-철을함유량높은순으로나열하고구비조건5가지를쓰시"
+        },
+        {
+          "num": 502,
+          "text": "고로 철광석 피환원성에 미치는 인자 4가지를 쓰시오.",
+          "examRefs": [],
+          "conditions": [],
+          "imageHint": "",
+          "parts": [
+            {
+              "label": "",
+              "answers": [
+                "① 산화도",
+                "② 화학성",
+                "③ 기공율",
+                "④ 입도",
+                "⑤ 표면적 상태"
+              ],
+              "keywords": [
+                {
+                  "label": "산화도",
+                  "terms": [
+                    "산화"
+                  ]
+                },
+                {
+                  "label": "화학성",
+                  "terms": [
+                    "화학성"
+                  ]
+                },
+                {
+                  "label": "기공율",
+                  "terms": [
+                    "기공율"
+                  ]
+                },
+                {
+                  "label": "입도",
+                  "terms": [
+                    "입도"
+                  ]
+                },
+                {
+                  "label": "표면적 상태",
+                  "terms": [
+                    "표면적",
+                    "상태"
+                  ]
+                }
+              ]
+            }
+          ],
+          "qid": "t26-502",
+          "images": [],
+          "imageNeeded": false,
+          "topicId": "t26",
+          "topicLabel": "철광석",
+          "stars": 1,
+          "groupId": "g-고로철광석피환원성에미치는인자4가지를쓰시오"
         },
         {
           "num": 96,

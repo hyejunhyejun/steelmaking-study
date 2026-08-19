@@ -14,7 +14,7 @@ def test_structure_counts():
     assert len(d["rounds"]) == 10
     assert sum(len(r["questions"]) for r in d["rounds"]) == 200
     assert len(d["topics"]) == 61
-    assert sum(len(t["questions"]) for t in d["topics"]) == 167  # 워드 171 + 추가 1 - 삭제 5
+    assert sum(len(t["questions"]) for t in d["topics"]) == 168  # 워드 171 + 추가 2 - 삭제 5
     assert d["rounds"][0]["label"] == "2021년 1회차"
     assert d["rounds"][-1]["label"] == "2025년 2회차"
 
@@ -95,7 +95,7 @@ def test_random_pool_has_no_duplicates():
     pool = [q["qid"] for r in d["rounds"] for q in r["questions"]]
     pool += [q["qid"] for t in d["topics"] for q in t["questions"] if not q["examRefs"]]
     assert len(pool) == len(set(pool))
-    assert len(pool) == 285
+    assert len(pool) == 286
 
 
 def test_no_leftover_internal_field():
@@ -337,3 +337,22 @@ def test_cold_pig_extra_subquestion():
     assert len(t) == 3 and len(r) == 2
     assert [p["answers"] for p in t[:2]] == [p["answers"] for p in r]  # 앞 2개는 같은 답
     assert t[2]["answers"] == ["① 에어해머", "② 에어모터드릴", "③ 산소절단기"]
+
+
+def test_reducibility_question_inserted_after_94():
+    """피환원성 인자 문항이 철광석 유형의 95번(구비조건) 뒤에 들어간다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    t26 = next(t for t in d["topics"] if t["id"] == "t26")
+    nums = [q["num"] for q in t26["questions"]]
+    assert nums.index(502) == nums.index(95) + 1
+    q = next(q for q in t26["questions"] if q["num"] == 502)
+    assert q["parts"][0]["answers"] == [
+        "① 산화도", "② 화학성", "③ 기공율", "④ 입도", "⑤ 표면적 상태"]
+
+
+def test_bell_valve_seal_has_two():
+    """노정 장입장치 3번째 형식은 '2 Bell Valve Seal식'."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
+    assert by["t11-51"]["parts"][0]["answers"][2] == "③ 2 Bell Valve Seal식"
+    assert by["21-2-4"]["parts"][0]["answers"] == by["t11-51"]["parts"][0]["answers"]

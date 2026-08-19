@@ -267,7 +267,7 @@ _SHAFT_BOSH_ANGLE = [
 ]
 
 # 회차·유형 답 통일분(추가)
-_TOP_CHARGE_TYPE = ["① Mckee식", "② Bell-Less식(벨리스식)", "③ Bell Valve Seal식"]
+_TOP_CHARGE_TYPE = ["① Mckee식", "② Bell-Less식(벨리스식)", "③ 2 Bell Valve Seal식"]
 _HEARTH_DAMAGE = [
     {"label": "", "answers": [
         "① 긴급 휴풍 실시",

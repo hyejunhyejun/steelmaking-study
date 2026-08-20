@@ -47,3 +47,22 @@ test("원본 풀 배열을 변형하지 않는다", () => {
   pickRandom(pool, 2);
   assert.deepEqual(pool.map((q) => q.qid), before);
 });
+
+test("범위별 랜덤 풀: 기출만 / 이외 기출만 / 전체", () => {
+  const data = {
+    rounds: [{ label: "21년 1회차", questions: [{ qid: "a" }, { qid: "b" }] }],
+    topics: [{ label: "열풍로", questions: [
+      { qid: "t1", examRefs: [] },
+      { qid: "t2", examRefs: ["21-1"] },   // 회차에 이미 있는 문제
+    ] }],
+  };
+  const ids = (scope) => buildRandomPool(data, scope).map((q) => q.qid);
+  assert.deepEqual(ids("exam"), ["a", "b"]);
+  assert.deepEqual(ids("topic"), ["t1", "t2"]);       // 이외 기출은 전부
+  assert.deepEqual(ids("all"), ["a", "b", "t1"]);     // 전체는 중복 제외
+});
+
+test("범위를 안 주면 전체", () => {
+  const data = { rounds: [{ label: "r", questions: [{ qid: "a" }] }], topics: [] };
+  assert.deepEqual(buildRandomPool(data).map((q) => q.qid), ["a"]);
+});

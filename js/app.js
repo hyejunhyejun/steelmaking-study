@@ -6,7 +6,7 @@ import {
 import { matchKeywords, scoreOf } from "./grading.js";
 import { saveProgress, loadProgress } from "./storage.js";
 import { renderFormula } from "./formula.js";
-import { buildRandomPool, pickRandom } from "./random.js";
+import { buildRandomPool, pickRandom, RANDOM_SCOPES } from "./random.js";
 import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode,
          bumpWrong, counts, countOf, listRevive, importOnce,
          sortWrongIds, getSort, setSort, SORT_MODES } from "./wrongnote.js";
@@ -23,7 +23,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-11d";
+const APP_VERSION = "2026-08-20a";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -131,14 +131,19 @@ function home() {
     <h2>그 외</h2>
     <div class="round-grid">
       <button class="round alt" data-go="topics">이외 기출문제<br><small>${topicQCount}문제</small></button>
-      <button class="round alt" data-go="random">랜덤 ${RANDOM_COUNT}문제<br><small>전체에서 무작위</small></button>
+      ${RANDOM_SCOPES.map(([k, name, hint]) =>
+        `<button class="round alt" data-random="${k}">랜덤 ${RANDOM_COUNT}문제 · ${name}
+           <br><small>${hint}</small></button>`).join("")}
       <button class="round wrong" data-go="wrong">오답노트<br><small>${wrongCount}문제</small></button>
       <button class="round alt" data-go="mnemonic">📌 암기법<br><small>두문자로 외우기</small></button>
     </div>`;
   app.querySelectorAll("button.round[data-id]").forEach((b) =>
     b.addEventListener("click", () => renderModeSelect(DATA.rounds.find((r) => r.id === b.dataset.id)))
   );
-  const go = { topics: startTopicsAll, random: startRandom, wrong: renderWrongNote,
+  app.querySelectorAll("button.round[data-random]").forEach((b) =>
+    b.addEventListener("click", () => startRandom(b.dataset.random))
+  );
+  const go = { topics: startTopicsAll, wrong: renderWrongNote,
                mnemonic: renderMnemonics };
   app.querySelectorAll("button.round[data-go]").forEach((b) =>
     b.addEventListener("click", () => go[b.dataset.go]())
@@ -422,12 +427,13 @@ function grade(collection) {
 
 /* ---------------- 랜덤 20문제 (한 문제씩 · 번호 1~20) ---------------- */
 
-function startRandom() {
-  const pool = buildRandomPool(DATA);
+function startRandom(scope = "all") {
+  const pool = buildRandomPool(DATA, scope);
   const picked = pickRandom(pool, RANDOM_COUNT).map((q, idx) => ({ ...q, displayNum: idx + 1 }));
+  const name = (RANDOM_SCOPES.find(([k]) => k === scope) || [, "전체"])[1];
   const collection = {
-    id: "random",
-    label: `랜덤 ${picked.length}문제`,
+    id: "random-" + scope,
+    label: `랜덤 ${picked.length}문제 · ${name}`,
     type: "random",
     questions: picked,
   };

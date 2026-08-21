@@ -9,7 +9,8 @@ import { renderFormula } from "./formula.js";
 import { buildRandomPool, pickRandom, RANDOM_SCOPES } from "./random.js";
 import { addWrong, removeWrong, listWrong, listRemoved, clearWrong, mergeWrong, parseWrongCode,
          bumpWrong, counts, countOf, listRevive, importOnce,
-         sortWrongIds, getSort, setSort, SORT_MODES } from "./wrongnote.js";
+         sortWrongIds, getSort, setSort, SORT_MODES,
+         WRONG_SCOPES, getScope, setScope, filterByScope } from "./wrongnote.js";
 import { isLinked, setToken, unlink, gistSync } from "./gistsync.js";
 
 const app = document.getElementById("app");
@@ -23,7 +24,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-20a";
+const APP_VERSION = "2026-08-20b";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -449,12 +450,20 @@ function renderWrongNote() {
   // 전체 문제 순서(회차 → 유형)를 정렬 기준으로 쓴다
   const order = {};
   allQuestions(DATA).forEach((q, i) => { order[q.qid] = i; });
-  const qids = sortWrongIds(listWrong(localStorage), { mode, counts: cnt, order });
+  const all = listWrong(localStorage);
+  const scope = getScope(localStorage);
+  const qids = sortWrongIds(filterByScope(all, scope), { mode, counts: cnt, order });
   const questions = qids.map((id) => findByQid(DATA, id)).filter(Boolean);
-  const collection = { id: "wrongnote", label: "오답노트", type: "wrong", questions };
+  const scopeName = (WRONG_SCOPES.find(([k]) => k === scope) || [, "전체"])[1];
+  const collection = { id: "wrongnote-" + scope, label: `오답노트 · ${scopeName}`,
+                       type: "wrong", questions };
+  const tabs = WRONG_SCOPES.map(([k, name]) =>
+    `<button class="wtab${k === scope ? " on" : ""}" data-scope="${k}">${name}
+       <small>${filterByScope(all, k).length}</small></button>`).join("");
   app.innerHTML = `
     <button class="back">← 홈</button>
     <h2>오답노트 <small>${questions.length}문제 · v${APP_VERSION}</small></h2>
+    <div class="wtabs">${tabs}</div>
     <div class="controls" style="margin:.4rem 0 .8rem">
       ${isLinked(localStorage)
         ? `<button id="sync-now">☁️ 지금 동기화</button><button id="unlink">연결 해제</button>`
@@ -491,10 +500,14 @@ function renderWrongNote() {
            <button data-mode="practice">연습</button>
            <button data-mode="test">테스트</button>
          </div>`
-      : `<p>아직 담긴 문제가 없습니다. 테스트·시험에서 <b>X 틀림</b>을 누르거나,
-         문제 아래 <b>＋ 오답노트에 추가</b> 버튼을 누르면 여기에 쌓입니다.</p>`}
+      : `<p>${all.length ? "이 범위에는 담긴 문제가 없습니다. 위 탭을 바꿔 보세요."
+            : "아직 담긴 문제가 없습니다. 테스트·시험에서 <b>X 틀림</b>을 누르거나, " +
+              "문제 아래 <b>＋ 오답노트에 추가</b> 버튼을 누르면 여기에 쌓입니다."}</p>`}
     ${bottomBack("← 홈")}`;
   bindBacks(home);
+  app.querySelectorAll(".wtab").forEach((b) =>
+    b.addEventListener("click", () => { setScope(localStorage, b.dataset.scope); renderWrongNote(); })
+  );
   app.querySelector("#wrong-sort")?.addEventListener("change", (e) => {
     setSort(localStorage, e.target.value);
     renderWrongNote();

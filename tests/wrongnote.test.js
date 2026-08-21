@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { addWrong, removeWrong, listWrong, clearWrong, mergeWrong, parseWrongCode,
          bumpWrong, countOf, mergeCounts,
          importOnce, listRemoved, listRevive,
-         sortWrongIds, getSort, setSort } from "../js/wrongnote.js";
+         sortWrongIds, getSort, setSort,
+         scopeOfQid, filterByScope, getScope, setScope } from "../js/wrongnote.js";
 
 function fakeStore() {
   const m = new Map();
@@ -161,4 +162,27 @@ test("정렬해도 원본 목록은 그대로다", () => {
   const src = ["a", "b", "c"];
   sortWrongIds(src, { mode: "recent" });
   assert.deepEqual(src, ["a", "b", "c"]);
+});
+
+test("qid로 기출/이외 기출을 가른다", () => {
+  assert.equal(scopeOfQid("21-1-4"), "exam");
+  assert.equal(scopeOfQid("25-2-13"), "exam");
+  assert.equal(scopeOfQid("t01-9"), "topic");
+  assert.equal(scopeOfQid("t26-502"), "topic");
+});
+
+test("범위로 오답노트를 걸러낸다", () => {
+  const ids = ["21-1-4", "t01-9", "25-2-3", "t62-171"];
+  assert.deepEqual(filterByScope(ids, "exam"), ["21-1-4", "25-2-3"]);
+  assert.deepEqual(filterByScope(ids, "topic"), ["t01-9", "t62-171"]);
+  assert.deepEqual(filterByScope(ids, "all"), ids);
+});
+
+test("범위 선택은 저장되고 기본은 전체", () => {
+  const s = fakeStore();
+  assert.equal(getScope(s), "all");
+  setScope(s, "topic");
+  assert.equal(getScope(s), "topic");
+  s.setItem("jeseon:wrongScope", "엉뚱");
+  assert.equal(getScope(s), "all");
 });

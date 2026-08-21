@@ -114,6 +114,27 @@ export function importOnce(store, qids, code) {
   return list;
 }
 
+/* --------- 범위(기출 / 이외 기출) --------- */
+// 회차 문제 qid는 "21-1-4", 유형 문제 qid는 "t01-9" → 앞글자로 구분된다
+const SCOPE = "jeseon:wrongScope";
+export const WRONG_SCOPES = [
+  ["exam", "기출문제"],
+  ["topic", "이외 기출문제"],
+  ["all", "전체"],
+];
+
+export function scopeOfQid(qid) { return /^t\d/.test(String(qid)) ? "topic" : "exam"; }
+
+export function getScope(store) {
+  const v = store.getItem(SCOPE);
+  return WRONG_SCOPES.some(([k]) => k === v) ? v : "all";
+}
+export function setScope(store, scope) { store.setItem(SCOPE, scope); }
+
+export function filterByScope(qids, scope) {
+  return scope === "all" ? qids.slice() : qids.filter((q) => scopeOfQid(q) === scope);
+}
+
 /* --------- 정렬 --------- */
 const SORT = "jeseon:wrongSort";
 export const SORT_MODES = [

@@ -267,3 +267,15 @@ button.reveal-part:hover { border-color: var(--accent); color: var(--accent); }
   padding: .3rem .4rem; border: 1px solid var(--border); border-radius: 8px;
   background: var(--card); color: var(--fg); font-size: .85rem;
 }
+
+/* 오답노트 범위 탭 */
+.wtabs { display: flex; gap: .4rem; margin: .1rem 0 .6rem; flex-wrap: wrap; }
+.wtab {
+  padding: .38rem .7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--card); color: var(--muted); font-size: .86rem;
+}
+.wtab small { margin-left: .3rem; opacity: .8; }
+.wtab.on {
+  background: var(--accent-soft); color: var(--accent);
+  border-color: var(--accent); font-weight: 700;
+}

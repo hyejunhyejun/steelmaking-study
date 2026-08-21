@@ -25247,7 +25247,9 @@
           "qid": "t46-154",
           "images": [],
           "imageNeeded": false,
-          "conditions": [],
+          "conditions": [
+            "보기: 석회석 분해열, 열풍현열, 노정가스 현열, 코크스 연소열, 철광석 직접환원열, 송풍 중 수분 현열, Carbon Solution 반응열, 간접환원열, 송풍 중 수분 분해열"
+          ],
           "unified": true,
           "topicId": "t46",
           "topicLabel": "열수지 계산(입열 · 출열)",

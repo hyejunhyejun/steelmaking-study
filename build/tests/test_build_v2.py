@@ -367,3 +367,13 @@ def test_channeling_causes():
     assert causes[0] == "① 특정풍구 미환원광석 강하"
     assert causes[2] == "③ 노정가스 CO/CO₂비 증대"
     assert "성분 급변" in causes[3]
+
+
+def test_heat_balance_choices_cover_all_answers():
+    """152번 입열·출열 보기는 답 9개를 빠짐없이 담는다."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    q = by["t46-154"]
+    choices = [x.strip() for x in q["conditions"][0].replace("보기:", "").split(",")]
+    answers = [a for p in q["parts"] for a in p["answers"]]
+    assert sorted(choices) == sorted(answers)

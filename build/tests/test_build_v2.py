@@ -254,6 +254,7 @@ def test_dropped_and_choices():
     assert "t47-155" not in by                      # 25-1-1과 중복이라 삭제
     assert by["t18-79"]["conditions"][0].startswith("보기:")
     assert by["t18-80"]["conditions"][0].startswith("보기:")
+    assert by["t26-95"]["conditions"] == ["보기: 적철광, 자철광, 갈철광, 능철광"]
     assert "적선철" not in by["t18-79"]["parts"][0]["answers"][0]
     # 108·115번은 기출과 같은 답
     r = {q["qid"]: q for c in d["rounds"] for q in c["questions"]}

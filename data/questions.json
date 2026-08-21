@@ -21153,7 +21153,9 @@
           "qid": "t26-95",
           "images": [],
           "imageNeeded": false,
-          "conditions": [],
+          "conditions": [
+            "보기: 적철광, 자철광, 갈철광, 능철광"
+          ],
           "unified": true,
           "topicId": "t26",
           "topicLabel": "철광석",

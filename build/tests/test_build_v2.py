@@ -356,3 +356,13 @@ def test_bell_valve_seal_has_two():
     by = {q["qid"]: q for c in d["rounds"] + d["topics"] for q in c["questions"]}
     assert by["t11-51"]["parts"][0]["answers"][2] == "③ 2 Bell Valve Seal식"
     assert by["21-2-4"]["parts"][0]["answers"] == by["t11-51"]["parts"][0]["answers"]
+
+
+def test_channeling_causes():
+    """113번 국부관통류 원인은 사용자 수정분."""
+    d = build(ROUNDS, PHOTOS, XLSX, DATA)
+    by = {q["qid"]: q for t in d["topics"] for q in t["questions"]}
+    causes = by["t29-113"]["parts"][1]["answers"]
+    assert causes[0] == "① 특정풍구 미환원광석 강하"
+    assert causes[2] == "③ 노정가스 CO/CO₂비 증대"
+    assert "성분 급변" in causes[3]

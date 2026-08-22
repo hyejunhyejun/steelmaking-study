@@ -24,7 +24,7 @@ const MODE_HINTS = {
   exam: "회차 전체를 풀고 한 번에 채점하기",
 };
 const RANDOM_COUNT = 20;
-const APP_VERSION = "2026-08-20b";
+const APP_VERSION = "2026-08-20c";
 
 /* ---------------- 키보드 단축키 ---------------- */
 // 화면마다 처리기를 갈아끼운다(화면 전환 시 이전 처리기가 남지 않도록)
@@ -154,10 +154,9 @@ function home() {
 /* ---------------- 이외 기출문제 (유형 구분 없이 전체) ---------------- */
 
 function topicsCollection() {
+  // 표시 번호는 loadData에서 이미 매겨져 있다(어느 화면에서든 같은 번호)
   const questions = [];
-  // 표시 번호는 순서대로 다시 매긴다(중간에 문항을 끼워넣어도 번호가 이어지도록)
-  (DATA.topics || []).forEach((t) =>
-    t.questions.forEach((q) => questions.push({ ...q, displayNum: questions.length + 1 })));
+  (DATA.topics || []).forEach((t) => t.questions.forEach((q) => questions.push(q)));
   return { id: "topics-all", label: "이외 기출문제", type: "topic", questions };
 }
 

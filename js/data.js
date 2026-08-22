@@ -1,7 +1,18 @@
 export async function loadData() {
   const res = await fetch("data/questions.json");
   if (!res.ok) throw new Error("questions.json 로드 실패");
-  return res.json();
+  return numberTopics(await res.json());
+}
+
+// 이외 기출문제의 화면 번호를 1부터 순서대로 매긴다.
+// 중간에 문항을 끼워넣으면 내부 번호(num)가 502처럼 튀는데,
+// 여기서 한 번 붙여두면 오답노트·랜덤 등 어느 화면에서 꺼내도 번호가 같다.
+export function numberTopics(data) {
+  let n = 0;
+  (data.topics || []).forEach((t) =>
+    t.questions.forEach((q) => { q.displayNum = ++n; })
+  );
+  return data;
 }
 
 export function getRound(data, id) {

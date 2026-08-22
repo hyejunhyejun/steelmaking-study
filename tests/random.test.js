@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildRandomPool, pickRandom } from "../js/random.js";
+import { numberTopics } from "../js/data.js";
 
 const data = {
   rounds: [
@@ -65,4 +66,16 @@ test("범위별 랜덤 풀: 기출만 / 이외 기출만 / 전체", () => {
 test("범위를 안 주면 전체", () => {
   const data = { rounds: [{ label: "r", questions: [{ qid: "a" }] }], topics: [] };
   assert.deepEqual(buildRandomPool(data).map((q) => q.qid), ["a"]);
+});
+
+test("이외 기출문제 번호는 어느 화면에서 꺼내도 순서대로", () => {
+  const data = { rounds: [], topics: [
+    { questions: [{ qid: "t01-1", num: 1 }, { qid: "t01-2", num: 2 }] },
+    { questions: [{ qid: "t26-502", num: 502 }, { qid: "t26-96", num: 96 }] },
+  ] };
+  numberTopics(data);
+  const all = data.topics.flatMap((t) => t.questions);
+  assert.deepEqual(all.map((q) => q.displayNum), [1, 2, 3, 4]);
+  // 내부 번호가 502여도 화면에는 3번으로 보인다
+  assert.equal(all.find((q) => q.qid === "t26-502").displayNum, 3);
 });
